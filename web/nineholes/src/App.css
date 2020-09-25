@@ -1,0 +1,66 @@
+.main_stage {
+  position: relative;
+  width: 100vmin;
+  height: 100vmax;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+.main_stage img {
+  position: absolute;
+  width: 100vmin;
+  height: 100vmin;
+  z-index: 1;
+}
+.character_black{
+  position: relative;
+  width: 10vmin;
+  height: 10vmin;
+  border-radius: 50%;
+  background-color: black;
+  border: 1px solid black;
+  z-index: 2;
+}
+.character_white{
+  position: relative;
+  width: 10vmin;
+  height: 10vmin;
+  border-radius: 50%;
+  background-color: white;
+  border: 1px solid black;
+  z-index: 2;
+}
+.character_blank{
+  position: relative;
+  width: 10vmin;
+  height: 10vmin;
+  border-radius: 50%;
+  z-index: 2;
+}
+.selected{
+  animation: selectedAnimation 1s linear 0s infinite;
+}
+@keyframes selectedAnimation
+{
+  0% {opacity: 1;}
+  50% {opacity: 0.5;}
+  100% {opacity: 1;}
+}
+.flex_row{
+  display: flex;
+  flex-direction: row;
+}
+.flex_column{
+  display: flex;
+  flex-direction: column;
+}
+.flex_1{
+  flex: 1
+}
+.character_margin_bottom{
+  margin-bottom: 33vmin;
+}
+.character_margin_right{
+  margin-right: 32vmin;
+}
