@@ -30,7 +30,7 @@ function CharacterComponent(props: CharacterProps) {
       : <div className="character_blank" onClick={onClick} />
 }
 
-function MainStage(props: {room_id: string}) {
+function MainStage(props: { room_id: string }) {
   let default_character_state: GameState = {
     character_list: [
       [Player.black, Player.black, Player.black].map(item => { return { type: item, is_selected: false } }),
@@ -46,10 +46,10 @@ function MainStage(props: {room_id: string}) {
   const [my_websocket, set_websocket] = useState<WebSocket>()
   useEffect(() => {
     var ws: WebSocket = new WebSocket("ws://101.133.238.228:8010/ws/" + props.room_id);
-    ws.onopen = function() {
+    ws.onopen = function () {
       console.log("connection start")
     }
-    ws.onmessage = function(event: any) {
+    ws.onmessage = function (event: any) {
       console.log(event)
       let _game_status: GameState = JSON.parse(JSON.stringify(game_status))
       if (Number(event.data) === 0) {
@@ -57,7 +57,7 @@ function MainStage(props: {room_id: string}) {
       } else if (Number(event.data) === 1) {
         change_my_role(Player.white)
         _game_status.status = GameStatus.start
-        ws.send(JSON.stringify({room: props.room_id, data: _game_status}))
+        ws.send(JSON.stringify({ room: props.room_id, data: _game_status }))
         change_game_status(_game_status)
       } else if (Number(event.data)) {
         change_my_role(null)
@@ -70,7 +70,7 @@ function MainStage(props: {room_id: string}) {
   }, [])
 
   useEffect(() => {
-    if (!game_status.winner) return
+    if (game_status.winner == null) return
     my_websocket?.close()
     let _game_status: GameState = JSON.parse(JSON.stringify(game_status))
     _game_status.status = GameStatus.end
@@ -141,50 +141,63 @@ function MainStage(props: {room_id: string}) {
     _game_status.winner = whoWin(_game_status)
     change_game_status(_game_status)
     if (is_change && my_websocket) {
-      my_websocket.send(JSON.stringify({room: props.room_id, data: _game_status}))
+      my_websocket.send(JSON.stringify({ room: props.room_id, data: _game_status }))
       console.log("send success")
     }
   }
 
   return (
-    <div className="main_stage">
-      <img src={require('./img/plate.png')} alt="" />
+    <div className="flex_column">
       <div className="flex_column">
         <div className="flex_row">
-          <div className="flex_1">
-            <span>状态：{game_status.status === GameStatus.waiting ? "等待加入" : game_status.status === GameStatus.end ? "游戏结束" :"游戏中"}</span>
+          <div className={`flex_row center flex_1 ${game_status.player===Player.black?"tomato":""}`}>
+            <div className="character_black" />
+            <div className="flex_row">
+              <span>黑子</span>
+              {my_role === Player.black ? (<span>（你）</span>) : null}
+            </div>
           </div>
-          <div className="flex_1">
-            <span>执棋：{my_role === Player.black ? "黑子" : my_role === Player.white ? "白子": "观战"}</span>
-          </div>
-          <div className="flex_1">
-            <span>当前棋：{game_status.player === Player.black ? "黑子" : "白子"}</span>
-          </div>
-          <div className="flex_1">
-            <span>获胜者：{game_status.winner === Player.black ? "黑子" : game_status.winner === Player.white ? "白子" : "无"}</span>
+          <div className={`flex_row center flex_1 ${game_status.player===Player.white?"tomato":""}`}>
+            <div className="character_white" />
+            <div className="flex_row">
+              <span>白子</span>
+              {my_role === Player.white ? (<span>（你）</span>) : null}
+            </div>
           </div>
         </div>
-        {game_status.character_list.map((column: Character[], column_index: number) => (
-          <div className={`flex_row ${column_index < 2 ? "character_margin_bottom" : ""}`} key={"column" + column_index}>
-            {column.map((item: Character, index: number) => (
-              <div className={`${index < 2 ? "character_margin_right" : ""}`} key={"character" + index}>
-                <CharacterComponent type={item.type} is_selected={item.is_selected} onClick={() => handleClick(column_index, index)} />
-              </div>
-            ))}
-          </div>
-        ))}
+        <div className="flex_1">
+          <span>状态：{game_status.status === GameStatus.waiting ? "等待加入" : game_status.status === GameStatus.end ? "游戏结束" : "游戏中"}</span>
+        </div>
+        <div className="flex_1">
+          <span>获胜者：{game_status.winner === Player.black ? "黑子" : game_status.winner === Player.white ? "白子" : "无"}</span>
+        </div>
+      </div>
+
+      <div className="main_stage">
+        <img src={require('./img/plate.png')} alt="" />
+        <div className="flex_column">
+          {game_status.character_list.map((column: Character[], column_index: number) => (
+            <div className={`flex_row ${column_index < 2 ? "character_margin_bottom" : ""}`} key={"column" + column_index}>
+              {column.map((item: Character, index: number) => (
+                <div className={`${index < 2 ? "character_margin_right" : ""}`} key={"character" + index}>
+                  <CharacterComponent type={item.type} is_selected={item.is_selected} onClick={() => handleClick(column_index, index)} />
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
 }
 
-class Page extends React.Component<{match: any}, {}>{
-  componentDidMount(){
+class Page extends React.Component<{ match: any }, {}>{
+  componentDidMount() {
     console.log(this)
   }
   render() {
-    return this.props.match ? <MainStage room_id={this.props.match.params.room_id}/> : null
-  } 
+    return this.props.match ? <MainStage room_id={this.props.match.params.room_id} /> : null
+  }
 }
 
 export default Page;
