@@ -141,7 +141,7 @@ function MainStage(props: {room_id: string}) {
     _game_status.winner = whoWin(_game_status)
     change_game_status(_game_status)
     if (is_change && my_websocket) {
-      my_websocket.send(JSON.stringify({room: "1", data: _game_status}))
+      my_websocket.send(JSON.stringify({room: props.room_id, data: _game_status}))
       console.log("send success")
     }
   }

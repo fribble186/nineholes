@@ -52,7 +52,6 @@ async def websocket_endpoint(ws: WebSocket, room: str):
             data = await ws.receive_text()
             data = json.loads(data)
             room = data["room"]
-            print(room)
             if room:
                 await manager.send_other_message(data, room)
     except WebSocketDisconnect:
