@@ -45,7 +45,7 @@ function MainStage(props: {room_id: string}) {
   const [my_role, change_my_role] = useState<Player | null>()
   const [my_websocket, set_websocket] = useState<WebSocket>()
   useEffect(() => {
-    var ws: WebSocket = new WebSocket("ws://127.0.0.1:8001/ws/" + props.room_id);
+    var ws: WebSocket = new WebSocket("ws://101.133.238.228:8001/ws/" + props.room_id);
     ws.onopen = function() {
       console.log("connection start")
     }
