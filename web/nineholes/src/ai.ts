@@ -296,6 +296,13 @@ export function NineholesAI(currunt: GameState) {
       return { last: whites[index].self, current: whites[index].feasibility[f_random] }
     }
   }
+
+  for (let index=0;index<3;index++) {
+    if (whites[index].feasibility.length) {
+      let f_random: number = parseInt((Math.random() * whites[index].feasibility.length).toString())
+      return { last: whites[index].self, current: whites[index].feasibility[f_random] }
+    }
+  }
   
   return null
 }
