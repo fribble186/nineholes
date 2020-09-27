@@ -151,6 +151,7 @@ function MainStage(props: { room_id: string }) {
       console.log("send success")
     } else if (is_change && props.room_id === "ai" && !_game_status.winner ) {
       let result: {last: number[], current: number[]} | null = NineholesAI(_game_status)
+      console.log(result)
       let temp = _game_status.character_list[result.current[0]][result.current[1]]
       _game_status.character_list[result.current[0]][result.current[1]] = _game_status.character_list[result.last[0]][result.last[1]]
       _game_status.character_list[result.last[0]][result.last[1]] = temp
