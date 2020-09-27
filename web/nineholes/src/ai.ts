@@ -24,11 +24,17 @@ export function NineholesAI(currunt: GameState) {
     })
   })
 
-  function not_in_dict(loc: number[]): boolean {
-    for (let item of blacks) {
-      if (loc.toString() === item.self.toString()) return false
+  function not_in_dict(loc: number[], other_whites: self_feasibility_dict[] | null = null): boolean {
+    if (other_whites) {
+      for (let item of other_whites) {
+        if (loc.toString() === item.self.toString()) return false
+      }
+    } else {
+      for (let item of whites) {
+        if (loc.toString() === item.self.toString()) return false
+      }
     }
-    for (let item of whites) {
+    for (let item of blacks) {
       if (loc.toString() === item.self.toString()) return false
     }
     return true
@@ -187,13 +193,48 @@ export function NineholesAI(currunt: GameState) {
     return false
   }
 
+  function get_free_character(curindex: number, current: number[]): number {
+    let _whites: self_feasibility_dict[] = JSON.parse(JSON.stringify(whites))
+    _whites[curindex].self = current
+    for (let item of _whites) {
+      item.feasibility = []
+      let new_column: number = 0
+      let new_row: number = 0
+  
+      new_column = item.self[0] + 1
+      if (new_column <= 2 && not_in_dict([new_column, item.self[1]], _whites)) item.feasibility.push([new_column, item.self[1]])
+      new_column = item.self[0] - 1
+      if (new_column >= 0 && not_in_dict([new_column, item.self[1]], _whites)) item.feasibility.push([new_column, item.self[1]])
+      new_row = item.self[1] + 1
+      if (new_row <= 2 && not_in_dict([item.self[0], new_row], _whites)) item.feasibility.push([item.self[0], new_row])
+      new_row = item.self[1] - 1
+      if (new_row >= 0 && not_in_dict([item.self[0], new_row], _whites)) item.feasibility.push([item.self[0], new_row])
+  
+      if (Math.abs(item.self[0] - item.self[1]) !== 1) {
+        new_column = item.self[0] + 1; new_row = item.self[1] + 1
+        if (new_column <= 2 && new_row <= 2 && not_in_dict([new_column, new_row], _whites)) item.feasibility.push([new_column, new_row])
+        new_column = item.self[0] - 1; new_row = item.self[1] - 1
+        if (new_column >= 0 && new_row >= 0 && not_in_dict([new_column, new_row], _whites)) item.feasibility.push([new_column, new_row])
+        new_column = item.self[0] + 1; new_row = item.self[1] - 1
+        if (new_column <= 2 && new_row >= 0 && not_in_dict([new_column, new_row], _whites)) item.feasibility.push([new_column, new_row])
+        new_column = item.self[0] - 1; new_row = item.self[1] + 1
+        if (new_column >= 0 && new_row <= 2 && not_in_dict([new_column, new_row], _whites)) item.feasibility.push([new_column, new_row])
+      }
+    }
+    let free_character_num = 0 
+    for (let item of _whites) {
+      if (item.feasibility.length) free_character_num++
+    }
+    return free_character_num
+  }
+
   // suit yourself
   while (true) {
     let random: number = parseInt((Math.random() * 3).toString())
     if (whites[random].feasibility.length) {
-      console.log(whites[random].self, lose_if_left(whites[random].self))
       if (lose_if_left(whites[random].self)) continue
       let f_random: number = parseInt((Math.random() * whites[random].feasibility.length).toString())
+      if (get_free_character(random, whites[random].feasibility[f_random])===1) continue
       return { last: whites[random].self, current: whites[random].feasibility[f_random] }
     }
   }
