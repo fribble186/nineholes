@@ -186,7 +186,6 @@ export function NineholesAI(currunt: GameState) {
         if ((Array.from(new Set(columns)).length===3) && (Math.abs(next_step[0] - next_step[1]) !== 1) && (Math.abs(other_1[0] - other_1[1]) !== 1) && (Math.abs(other_2[0] - other_2[1]) !== 1))
         i_can_win = true
       }
-      console.log(next_step, other_1, other_2)
       if (i_can_win) {
         if ((next_step[0] - blacks[index].self[0]) == 2) {
           i_can_win = false
@@ -240,6 +239,7 @@ export function NineholesAI(currunt: GameState) {
   function next_step_lose_if_left(curindex: number, current: number[]): boolean {  // !CAUTION: blacks经过这个方法已经改变了
     let _whites: self_feasibility_dict[] = JSON.parse(JSON.stringify(whites))
     _whites[curindex].self = current
+    let _blacks = JSON.parse(JSON.stringify(blacks))
     let i_can_win: boolean = false
     for (let item of blacks) {
       let new_column: number = 0
@@ -268,16 +268,16 @@ export function NineholesAI(currunt: GameState) {
     for (let index = 0; index < 3; index++) {
       for (let feasibility of blacks[index].feasibility) {
         blacks[index].self = feasibility
+        console.log(get_free_character(curindex, current))
         if (get_free_character(curindex, current) === 1) i_can_win = true
       }
     }
+    blacks = _blacks
     return i_can_win
   }
 
   // suit yourself
-  let _blacks = JSON.parse(JSON.stringify(blacks))
   for (let index = 0; index < 100; index++) {  // 随你走，但是如果找不到赢的坐标则退出循环
-    blacks = _blacks
     let random: number = parseInt((Math.random() * 3).toString())
     if (whites[random].feasibility.length) {
       if (lose_if_left(whites[random].self)) continue
@@ -289,9 +289,9 @@ export function NineholesAI(currunt: GameState) {
   }
 
   // desperate
-  blacks = _blacks
   for (let index=0;index<3;index++) {
     if (whites[index].feasibility.length) {
+      if (lose_if_left(whites[index].self)) continue
       let f_random: number = parseInt((Math.random() * whites[index].feasibility.length).toString())
       return { last: whites[index].self, current: whites[index].feasibility[f_random] }
     }
