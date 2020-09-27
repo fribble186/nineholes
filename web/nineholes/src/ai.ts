@@ -114,8 +114,8 @@ export function NineholesAI(currunt: GameState) {
       } else if (next_step[1] === other_1[1] && other_1[1] === other_2[1]) {
         return { last: whites[index].self, current: next_step }
       } else if (columns.sort().toString() === rows.sort().toString()) {
-        if ((Array.from(new Set(columns)).length===3) && (Math.abs(next_step[0] - next_step[1]) !== 1) && (Math.abs(other_1[0] - other_1[1]) !== 1) && (Math.abs(other_2[0] - other_2[1]) !== 1))
-        return { last: whites[index].self, current: next_step }
+        if ((Array.from(new Set(columns)).length === 3) && (Math.abs(next_step[0] - next_step[1]) !== 1) && (Math.abs(other_1[0] - other_1[1]) !== 1) && (Math.abs(other_2[0] - other_2[1]) !== 1))
+          return { last: whites[index].self, current: next_step }
       }
     }
   }
@@ -144,8 +144,8 @@ export function NineholesAI(currunt: GameState) {
       } else if (next_step[1] === other_1[1] && other_1[1] === other_2[1]) {
         black_wins.push(next_step)
       } else if (columns.sort().toString() === rows.sort().toString()) {
-        if ((Array.from(new Set(columns)).length===3) && (Math.abs(next_step[0] - next_step[1]) !== 1) && (Math.abs(other_1[0] - other_1[1]) !== 1) && (Math.abs(other_2[0] - other_2[1]) !== 1))
-        black_wins.push(next_step)
+        if ((Array.from(new Set(columns)).length === 3) && (Math.abs(next_step[0] - next_step[1]) !== 1) && (Math.abs(other_1[0] - other_1[1]) !== 1) && (Math.abs(other_2[0] - other_2[1]) !== 1))
+          black_wins.push(next_step)
       }
     }
   }
@@ -183,8 +183,8 @@ export function NineholesAI(currunt: GameState) {
       } else if (next_step[1] === other_1[1] && other_1[1] === other_2[1]) {
         i_can_win = true
       } else if (columns.sort().toString() === rows.sort().toString()) {
-        if ((Array.from(new Set(columns)).length===3) && (Math.abs(next_step[0] - next_step[1]) !== 1) && (Math.abs(other_1[0] - other_1[1]) !== 1) && (Math.abs(other_2[0] - other_2[1]) !== 1))
-        i_can_win = true
+        if ((Array.from(new Set(columns)).length === 3) && (Math.abs(next_step[0] - next_step[1]) !== 1) && (Math.abs(other_1[0] - other_1[1]) !== 1) && (Math.abs(other_2[0] - other_2[1]) !== 1))
+          i_can_win = true
       }
       if (i_can_win) {
         if ((next_step[0] - blacks[index].self[0]) == 2) {
@@ -266,10 +266,31 @@ export function NineholesAI(currunt: GameState) {
       }
     }
     for (let index = 0; index < 3; index++) {
+      let other_1: number[]
+      let other_2: number[]
+      let i_can_win: boolean = false
+      if (index === 0) {
+        other_1 = _blacks[1].self
+        other_2 = _blacks[2].self
+      } else if (index === 1) {
+        other_1 = _blacks[0].self
+        other_2 = _blacks[2].self
+      } else {
+        other_1 = _blacks[0].self
+        other_2 = _blacks[1].self
+      }
       for (let feasibility of blacks[index].feasibility) {
         blacks[index].self = feasibility
         console.log(get_free_character(curindex, current))
-        if (get_free_character(curindex, current) === 1) i_can_win = true
+        if (get_free_character(curindex, current) === 1) {
+          i_can_win = true
+        } else if (get_free_character(curindex, current) === 2) {
+          if (other_1[0] === other_2[0] || other_1[1] === other_2[1]) {
+            i_can_win = true
+          } else {
+            i_can_win = false
+          }
+        }
       }
     }
     blacks = _blacks
@@ -289,7 +310,7 @@ export function NineholesAI(currunt: GameState) {
   }
 
   // desperate
-  for (let index=0;index<3;index++) {
+  for (let index = 0; index < 3; index++) {
     if (whites[index].feasibility.length) {
       if (lose_if_left(whites[index].self)) continue
       let f_random: number = parseInt((Math.random() * whites[index].feasibility.length).toString())
@@ -297,12 +318,12 @@ export function NineholesAI(currunt: GameState) {
     }
   }
 
-  for (let index=0;index<3;index++) {
+  for (let index = 0; index < 3; index++) {
     if (whites[index].feasibility.length) {
       let f_random: number = parseInt((Math.random() * whites[index].feasibility.length).toString())
       return { last: whites[index].self, current: whites[index].feasibility[f_random] }
     }
   }
-  
+
   return null
 }
