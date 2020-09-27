@@ -177,6 +177,7 @@ export function NineholesAI(currunt: GameState) {
       }
       let columns: number[] = [next_step[0], other_1[0], other_2[0]]
       let rows: number[] = [next_step[1], other_1[1], other_2[1]]
+      console.log(next_step, other_1, other_2)
       if (next_step[0] === other_1[0] && other_1[0] === other_2[0]) {
         if (next_step[0] !== 0) i_can_win = true
       } else if (next_step[1] === other_1[1] && other_1[1] === other_2[1]) {
@@ -189,7 +190,7 @@ export function NineholesAI(currunt: GameState) {
           i_can_win = false
         } else if ((next_step[1] - blacks[index].self[1]) == 2) {
           i_can_win = false
-        } else if (Math.abs(blacks[index].self[0] - blacks[index].self[1]) === 1) {
+        } else if ((Math.abs(blacks[index].self[0] - blacks[index].self[1]) === 1) && (Math.abs(next_step[0] - next_step[1]) === 1)) {
           i_can_win = false
         }
       }
