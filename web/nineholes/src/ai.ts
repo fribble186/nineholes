@@ -114,7 +114,7 @@ export function NineholesAI(currunt: GameState) {
       } else if (next_step[1] === other_1[1] && other_1[1] === other_2[1]) {
         return { last: whites[index].self, current: next_step }
       } else if (columns.sort().toString() === rows.sort().toString()) {
-        if ((Math.abs(next_step[0] - next_step[1]) !== 1) && (Math.abs(other_1[0] - other_1[1]) !== 1) && (Math.abs(other_2[0] - other_2[1]) !== 1))
+        if ((Array.from(new Set(columns)).length===3) && (Math.abs(next_step[0] - next_step[1]) !== 1) && (Math.abs(other_1[0] - other_1[1]) !== 1) && (Math.abs(other_2[0] - other_2[1]) !== 1))
         return { last: whites[index].self, current: next_step }
       }
     }
@@ -144,7 +144,7 @@ export function NineholesAI(currunt: GameState) {
       } else if (next_step[1] === other_1[1] && other_1[1] === other_2[1]) {
         black_wins.push(next_step)
       } else if (columns.sort().toString() === rows.sort().toString()) {
-        if ((Math.abs(next_step[0] - next_step[1]) !== 1) && (Math.abs(other_1[0] - other_1[1]) !== 1) && (Math.abs(other_2[0] - other_2[1]) !== 1))
+        if ((Array.from(new Set(columns)).length===3) && (Math.abs(next_step[0] - next_step[1]) !== 1) && (Math.abs(other_1[0] - other_1[1]) !== 1) && (Math.abs(other_2[0] - other_2[1]) !== 1))
         black_wins.push(next_step)
       }
     }
@@ -183,9 +183,10 @@ export function NineholesAI(currunt: GameState) {
       } else if (next_step[1] === other_1[1] && other_1[1] === other_2[1]) {
         i_can_win = true
       } else if (columns.sort().toString() === rows.sort().toString()) {
-        if ((Math.abs(next_step[0] - next_step[1]) !== 1) && (Math.abs(other_1[0] - other_1[1]) !== 1) && (Math.abs(other_2[0] - other_2[1]) !== 1))
+        if ((Array.from(new Set(columns)).length===3) && (Math.abs(next_step[0] - next_step[1]) !== 1) && (Math.abs(other_1[0] - other_1[1]) !== 1) && (Math.abs(other_2[0] - other_2[1]) !== 1))
         i_can_win = true
       }
+      console.log(next_step, other_1, other_2)
       if (i_can_win) {
         if ((next_step[0] - blacks[index].self[0]) == 2) {
           i_can_win = false
@@ -267,7 +268,6 @@ export function NineholesAI(currunt: GameState) {
     for (let index = 0; index < 3; index++) {
       for (let feasibility of blacks[index].feasibility) {
         blacks[index].self = feasibility
-        console.log(get_free_character(curindex, current))
         if (get_free_character(curindex, current) === 1) i_can_win = true
       }
     }
@@ -275,7 +275,9 @@ export function NineholesAI(currunt: GameState) {
   }
 
   // suit yourself
+  let _blacks = JSON.parse(JSON.stringify(blacks))
   for (let index = 0; index < 100; index++) {  // 随你走，但是如果找不到赢的坐标则退出循环
+    blacks = _blacks
     let random: number = parseInt((Math.random() * 3).toString())
     if (whites[random].feasibility.length) {
       if (lose_if_left(whites[random].self)) continue
@@ -287,6 +289,7 @@ export function NineholesAI(currunt: GameState) {
   }
 
   // desperate
+  blacks = _blacks
   for (let index=0;index<3;index++) {
     if (whites[index].feasibility.length) {
       let f_random: number = parseInt((Math.random() * whites[index].feasibility.length).toString())
