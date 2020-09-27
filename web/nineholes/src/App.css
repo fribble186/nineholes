@@ -25,8 +25,8 @@
 }
 .character_black{
   position: relative;
-  width: 5vmin;
-  height: 5vmin;
+  width: 10vmin;
+  height: 10vmin;
   border-radius: 50%;
   background-color: black;
   border: 1px solid black;
@@ -34,8 +34,8 @@
 }
 .character_white{
   position: relative;
-  width: 5vmin;
-  height: 5vmin;
+  width: 10vmin;
+  height: 10vmin;
   border-radius: 50%;
   background-color: white;
   border: 1px solid black;
@@ -43,14 +43,15 @@
 }
 .character_blank{
   position: relative;
-  width: 5vmin;
-  height: 5vmin;
+  width: 10vmin;
+  height: 10vmin;
   border-radius: 50%;
   border: 1px solid transparent;
   z-index: 2;
 }
 .selected{
   animation: selectedAnimation 1s linear 0s infinite;
+  border: 1px solid red;
 }
 @keyframes selectedAnimation
 {
@@ -70,8 +71,8 @@
   flex: 1
 }
 .character_margin_bottom{
-  margin-bottom: 37vmin;
+  margin-bottom: 33vmin;
 }
 .character_margin_right{
-  margin-right: 37vmin;
+  margin-right: 32vmin;
 }

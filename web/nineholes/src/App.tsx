@@ -155,6 +155,7 @@ function MainStage(props: { room_id: string }) {
       _game_status.character_list[result.current[0]][result.current[1]] = _game_status.character_list[result.last[0]][result.last[1]]
       _game_status.character_list[result.last[0]][result.last[1]] = temp
       _game_status.player = _game_status.player === Player.black ? Player.white : Player.black
+      _game_status.winner = whoWin(_game_status)
     }
     change_game_status(_game_status)
   }
