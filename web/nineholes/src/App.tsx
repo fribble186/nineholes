@@ -1,6 +1,7 @@
 import React from 'react';
 import './App.css';
 import { useState, useEffect } from 'react'
+import { NineholesAI } from './ai'
 
 interface CharacterProps {
   type: Player | null,
@@ -9,12 +10,12 @@ interface CharacterProps {
 }
 
 enum GameStatus { start, end, waiting }
-enum Player { black, white }
-interface Character {
+export enum Player { black, white }
+export interface Character {
   type: Player | null,
   is_selected: boolean
 }
-interface GameState {
+export interface GameState {
   character_list: Character[][],
   player: Player | null,
   status: GameStatus,
@@ -45,28 +46,34 @@ function MainStage(props: { room_id: string }) {
   const [my_role, change_my_role] = useState<Player | null>()
   const [my_websocket, set_websocket] = useState<WebSocket>()
   useEffect(() => {
-    var ws: WebSocket = new WebSocket("ws://101.133.238.228:8010/ws/" + props.room_id);
-    ws.onopen = function () {
-      console.log("connection start")
-    }
-    ws.onmessage = function (event: any) {
-      console.log(event)
-      let _game_status: GameState = JSON.parse(JSON.stringify(game_status))
-      if (Number(event.data) === 0) {
-        change_my_role(Player.black)
-      } else if (Number(event.data) === 1) {
-        change_my_role(Player.white)
-        _game_status.status = GameStatus.start
-        ws.send(JSON.stringify({ room: props.room_id, data: _game_status }))
-        change_game_status(_game_status)
-      } else if (Number(event.data)) {
-        change_my_role(null)
-      } else {
-        let data = JSON.parse(event.data)
-        change_game_status(data.data)
+    let _game_status: GameState = JSON.parse(JSON.stringify(game_status))
+    if (props.room_id === "ai") {
+      change_my_role(Player.black)
+      _game_status.status = GameStatus.start
+      change_game_status(_game_status)
+    } else {
+      var ws: WebSocket = new WebSocket("ws://101.133.238.228:8010/ws/" + props.room_id);
+      ws.onopen = function () {
+        console.log("connection start")
       }
+      ws.onmessage = function (event: any) {
+        console.log(event)
+        if (Number(event.data) === 0) {
+          change_my_role(Player.black)
+        } else if (Number(event.data) === 1) {
+          change_my_role(Player.white)
+          _game_status.status = GameStatus.start
+          ws.send(JSON.stringify({ room: props.room_id, data: _game_status }))
+          change_game_status(_game_status)
+        } else if (Number(event.data)) {
+          change_my_role(null)
+        } else {
+          let data = JSON.parse(event.data)
+          change_game_status(data.data)
+        }
+      }
+      set_websocket(ws)
     }
-    set_websocket(ws)
   }, [])
 
   useEffect(() => {
@@ -78,6 +85,7 @@ function MainStage(props: { room_id: string }) {
   }, [game_status.winner])
 
   const whoWin = (_game_status: GameState) => {
+    console.log(_game_status)
     let black_columns: number[] = []
     let black_rows: number[] = []
     let white_columns: number[] = []
@@ -98,14 +106,14 @@ function MainStage(props: { room_id: string }) {
       if (black_columns[0] !== 0) return Player.black
     } else if ((black_rows[0] === black_rows[1] && black_rows[1] === black_rows[2])) {
       return Player.black
-    } else if (black_columns.sort().toString() === black_rows.sort().toString()) {
+    } else if (black_columns.toString() === black_rows.toString() || black_columns.reverse().toString() === black_rows.toString()) {
       return Player.black
     }
     if (white_columns[0] === white_columns[1] && white_columns[1] === white_columns[2]) {
       if (white_columns[0] !== 2) return Player.white
     } else if ((white_rows[0] === white_rows[1] && white_rows[1] === white_rows[2])) {
       return Player.white
-    } else if (white_columns.sort().toString() === white_rows.sort().toString()) {
+    } else if (white_columns.toString() === white_rows.toString() || white_columns.reverse().toString() === white_rows.toString()) {
       return Player.white
     }
     return null
@@ -139,25 +147,31 @@ function MainStage(props: { room_id: string }) {
       }
     }
     _game_status.winner = whoWin(_game_status)
-    change_game_status(_game_status)
     if (is_change && my_websocket) {
       my_websocket.send(JSON.stringify({ room: props.room_id, data: _game_status }))
       console.log("send success")
+    } else if (is_change && props.room_id === "ai" && !_game_status.winner ) {
+      let result: {last: number[], current: number[]} | null = NineholesAI(_game_status)
+      let temp = _game_status.character_list[result.current[0]][result.current[1]]
+      _game_status.character_list[result.current[0]][result.current[1]] = _game_status.character_list[result.last[0]][result.last[1]]
+      _game_status.character_list[result.last[0]][result.last[1]] = temp
+      _game_status.player = _game_status.player === Player.black ? Player.white : Player.black
     }
+    change_game_status(_game_status)
   }
 
   return (
     <div className="flex_column">
       <div className="flex_column">
         <div className="flex_row">
-          <div className={`flex_row center flex_1 ${game_status.player===Player.black?"tomato":""}`}>
+          <div className={`flex_row center flex_1 ${game_status.player === Player.black ? "tomato" : ""}`}>
             <div className="character_black" />
             <div className="flex_row">
               <span>黑子</span>
               {my_role === Player.black ? (<span>（你）</span>) : null}
             </div>
           </div>
-          <div className={`flex_row center flex_1 ${game_status.player===Player.white?"tomato":""}`}>
+          <div className={`flex_row center flex_1 ${game_status.player === Player.white ? "tomato" : ""}`}>
             <div className="character_white" />
             <div className="flex_row">
               <span>白子</span>
