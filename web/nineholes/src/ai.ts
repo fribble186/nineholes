@@ -91,7 +91,8 @@ export function NineholesAI(currunt: GameState) {
   }
 
   // 必胜，登龙剑，处理下一步必胜的走法
-  whites.forEach((item: self_feasibility_dict, index: number) => {
+  for (let index = 0; index < 3; index++ ) {
+    let item = whites[index]
     for (let next_step of item.feasibility) {
       let other_1: number[]
       let other_2: number[]
@@ -115,11 +116,12 @@ export function NineholesAI(currunt: GameState) {
         return { last: whites[index].self, current: next_step }
       }
     }
-  })
+  }
 
   // 你先走，小杜
   let black_wins: number[][] = []
-  blacks.forEach((item: self_feasibility_dict, index: number) => {
+  for (let index = 0; index < 3; index++ ) {
+    let item = blacks[index]
     for (let next_step of item.feasibility) {
       let other_1: number[]
       let other_2: number[]
@@ -138,20 +140,21 @@ export function NineholesAI(currunt: GameState) {
       if (next_step[0] === other_1[0] && other_1[0] === other_2[0]) {
         if (next_step[0] !== 0) black_wins.push(next_step)
       } else if (next_step[1] === other_1[1] && other_1[1] === other_2[1]) {
-        return black_wins.push(next_step)
+        black_wins.push(next_step)
       } else if (columns.toString() === rows.toString() || columns.reverse().toString() === rows.toString()) {
-        return black_wins.push(next_step)
+        black_wins.push(next_step)
       }
     }
-  })
+  }
   for (let black_win of black_wins) {
-    whites.forEach((item: self_feasibility_dict, index: number) => {
+    for (let index = 0; index < 3; index++ ) {
+      let item = whites[index]
       for (let feasibility of item.feasibility) {
         if (black_win.toString() === feasibility.toString()) {
           return { last: whites[index].self, current: feasibility }
         }
       }
-    })
+    }
   }
 
   // 暂停一下
