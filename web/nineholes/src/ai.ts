@@ -269,7 +269,6 @@ export function NineholesAI(currunt: GameState) {
       }
     }
     blacks = _blacks
-    console.log(i_can_win)
     return i_can_win
   }
 
