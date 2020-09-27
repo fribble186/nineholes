@@ -85,7 +85,6 @@ function MainStage(props: { room_id: string }) {
   }, [game_status.winner])
 
   const whoWin = (_game_status: GameState) => {
-    console.log(_game_status)
     let black_columns: number[] = []
     let black_rows: number[] = []
     let white_columns: number[] = []
@@ -101,7 +100,7 @@ function MainStage(props: { room_id: string }) {
         }
       })
     })
-    console.log(black_columns, black_rows, white_columns, white_rows)
+    // console.log(black_columns, black_rows, white_columns, white_rows)
     if (black_columns[0] === black_columns[1] && black_columns[1] === black_columns[2]) {
       if (black_columns[0] !== 0) return Player.black
     } else if ((black_rows[0] === black_rows[1] && black_rows[1] === black_rows[2])) {

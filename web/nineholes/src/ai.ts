@@ -89,24 +89,24 @@ export function NineholesAI(currunt: GameState) {
     for (let next_step of item.feasibility) {
       let other_1: number[]
       let other_2: number[]
-      if (index === 0 ) {
+      if (index === 0) {
         other_1 = whites[1].self
         other_2 = whites[2].self
-      } else if (index === 1){
+      } else if (index === 1) {
         other_1 = whites[0].self
         other_2 = whites[2].self
-      } else{
+      } else {
         other_1 = whites[0].self
         other_2 = whites[1].self
       }
       let columns: number[] = [next_step[0], other_1[0], other_2[0]]
       let rows: number[] = [next_step[1], other_1[1], other_2[1]]
       if (next_step[0] === other_1[0] && other_1[0] === other_2[0]) {
-        if (next_step[0] !== 2) return {last: whites[index].self,current: next_step}
+        if (next_step[0] !== 2) return { last: whites[index].self, current: next_step }
       } else if (next_step[1] === other_1[1] && other_1[1] === other_2[1]) {
-        return {last: whites[index].self,current: next_step}
+        return { last: whites[index].self, current: next_step }
       } else if (columns.sort().toString() === rows.sort().toString()) {
-        return {last: whites[index].self,current: next_step}
+        return { last: whites[index].self, current: next_step }
       }
     }
   })
@@ -117,20 +117,20 @@ export function NineholesAI(currunt: GameState) {
     for (let next_step of item.feasibility) {
       let other_1: number[]
       let other_2: number[]
-      if (index === 0 ) {
+      if (index === 0) {
         other_1 = blacks[1].self
         other_2 = blacks[2].self
-      } else if (index === 1){
+      } else if (index === 1) {
         other_1 = blacks[0].self
         other_2 = blacks[2].self
-      } else{
+      } else {
         other_1 = blacks[0].self
         other_2 = blacks[1].self
       }
       let columns: number[] = [next_step[0], other_1[0], other_2[0]]
       let rows: number[] = [next_step[1], other_1[1], other_2[1]]
       if (next_step[0] === other_1[0] && other_1[0] === other_2[0]) {
-        if (next_step[0] !== 2) black_wins.push(next_step)
+        if (next_step[0] !== 0) black_wins.push(next_step)
       } else if (next_step[1] === other_1[1] && other_1[1] === other_2[1]) {
         return black_wins.push(next_step)
       } else if (columns.toString() === rows.toString() || columns.reverse().toString() === rows.toString()) {
@@ -139,21 +139,62 @@ export function NineholesAI(currunt: GameState) {
     }
   })
   for (let black_win of black_wins) {
-    whites.forEach((item: self_feasibility_dict, index: number)=> {
+    whites.forEach((item: self_feasibility_dict, index: number) => {
       for (let feasibility of item.feasibility) {
         if (black_win.toString() === feasibility.toString()) {
-          return {last: whites[index].self, current: feasibility}
+          return { last: whites[index].self, current: feasibility }
         }
       }
     })
   }
 
+  // 暂停一下
+  function lose_if_left(next_step: number[]): boolean {
+    for (let index = 0; index < 3; index++) {
+      let other_1: number[]
+      let other_2: number[]
+      let i_can_win: boolean = false
+      if (index === 0) {
+        other_1 = blacks[1].self
+        other_2 = blacks[2].self
+      } else if (index === 1) {
+        other_1 = blacks[0].self
+        other_2 = blacks[2].self
+      } else {
+        other_1 = blacks[0].self
+        other_2 = blacks[1].self
+      }
+      let columns: number[] = [next_step[0], other_1[0], other_2[0]]
+      let rows: number[] = [next_step[1], other_1[1], other_2[1]]
+      if (next_step[0] === other_1[0] && other_1[0] === other_2[0]) {
+        if (next_step[0] !== 0) i_can_win = true
+      } else if (next_step[1] === other_1[1] && other_1[1] === other_2[1]) {
+        i_can_win = true
+      } else if (columns.toString() === rows.toString() || columns.reverse().toString() === rows.toString()) {
+        i_can_win = true
+      }
+      if (i_can_win) {
+        if ((next_step[0] - blacks[index].self[0]) == 2 ) {
+          i_can_win = false
+        } else if ((next_step[1] - blacks[index].self[1]) == 2 ){
+          i_can_win = false
+        } else if (Math.abs(blacks[index].self[0] - blacks[index].self[1]) === 1) {
+          i_can_win = false
+        }
+      }
+      if (i_can_win) return true
+    }
+    return false
+  }
+
   // suit yourself
-  while (true){
+  while (true) {
     let random: number = parseInt((Math.random() * 3).toString())
     if (whites[random].feasibility.length) {
+      console.log(whites[random].self, lose_if_left(whites[random].self))
+      if (lose_if_left(whites[random].self)) continue
       let f_random: number = parseInt((Math.random() * whites[random].feasibility.length).toString())
-      return {last: whites[random].self, current: whites[random].feasibility[f_random]}
+      return { last: whites[random].self, current: whites[random].feasibility[f_random] }
     }
   }
 }
