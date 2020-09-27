@@ -119,6 +119,7 @@ function MainStage(props: { room_id: string }) {  // 主舞台，页面
   }
 
   const handleClick = (column_index: number, row_index: number) => {
+    console.log("handleClick")
     let _game_status: GameState = JSON.parse(JSON.stringify(game_status))
     if (_game_status.status !== GameStatus.start) return
     if (_game_status.player !== my_role) return

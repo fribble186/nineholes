@@ -17,13 +17,13 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
+  margin-top: 20vmin;
 }
 .main_stage img {
   position: absolute;
   width: 100vmin;
   height: 100vmin;
   z-index: 1;
-  margin-top: 20vmin;
 }
 .character_black{
   position: relative !important;
@@ -44,12 +44,12 @@
   z-index: 2 !important;
 }
 .character_blank{
-  position: relative;
-  width: 10vmin;
-  height: 10vmin;
+  position: relative !important;
+  width: 10vmin !important;
+  height: 10vmin !important;
   border-radius: 50%;
   border: 1px solid transparent;
-  z-index: 2;
+  z-index: 2 !important;
 }
 .selected{
   animation: selectedAnimation 1s linear 0s infinite;
@@ -73,7 +73,7 @@
   flex: 1
 }
 .character_margin_bottom{
-  margin-bottom: 22vmin;
+  margin-bottom: 32vmin;
 }
 .character_margin_right{
   margin-right: 32vmin;
