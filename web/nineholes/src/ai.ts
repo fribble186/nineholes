@@ -233,11 +233,10 @@ export function NineholesAI(currunt: GameState) {
     return free_character_num
   }
 
-  function next_step_lose_if_left(curindex: number, current: number[]): boolean {
+  function next_step_lose_if_left(curindex: number, current: number[]): boolean {  // !CAUTION: blacks经过这个方法已经改变了
     let _whites: self_feasibility_dict[] = JSON.parse(JSON.stringify(whites))
     _whites[curindex].self = current
     let i_can_win: boolean = false
-    let _blacks: self_feasibility_dict[] = JSON.parse(JSON.stringify(blacks))
     for (let item of blacks) {
       let new_column: number = 0
       let new_row: number = 0
@@ -268,7 +267,6 @@ export function NineholesAI(currunt: GameState) {
         if (get_free_character(curindex, current)===1) i_can_win = true
       }
     }
-    blacks = _blacks
     return i_can_win
   }
 
