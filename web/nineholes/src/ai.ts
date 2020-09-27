@@ -1,7 +1,7 @@
 import { GameState, Character, Player } from './App'
 
 
-interface self_feasibility_dict {
+interface self_feasibility_dict {  // 存棋子自己的坐标和该棋子可行的坐标
   self: number[],
   feasibility: number[][]
 }
@@ -10,7 +10,7 @@ export function NineholesAI(currunt: GameState) {
   let character_list: Character[][] = currunt.character_list
   let blacks: self_feasibility_dict[] = []
   let whites: self_feasibility_dict[] = []
-  character_list.forEach((column: Character[], column_index: number) => {
+  character_list.forEach((column: Character[], column_index: number) => {  // 先获取黑子和白子自己的坐标
     column.forEach((cell: Character, row_index: number) => {
       let character: self_feasibility_dict
       if (cell.type !== null) {
@@ -24,7 +24,7 @@ export function NineholesAI(currunt: GameState) {
     })
   })
 
-  function not_in_dict(loc: number[], other_whites: self_feasibility_dict[] | null = null): boolean {
+  function not_in_dict(loc: number[], other_whites: self_feasibility_dict[] | null = null): boolean {  // 判断该坐标有没有棋子占用
     if (other_whites) {
       for (let item of other_whites) {
         if (loc.toString() === item.self.toString()) return false
@@ -40,7 +40,7 @@ export function NineholesAI(currunt: GameState) {
     return true
   }
 
-  for (let item of blacks) {
+  for (let item of blacks) {  // 获取所有黑子可行的坐标
     let new_column: number = 0
     let new_row: number = 0
 
@@ -53,7 +53,7 @@ export function NineholesAI(currunt: GameState) {
     new_row = item.self[1] - 1
     if (new_row >= 0 && not_in_dict([item.self[0], new_row])) item.feasibility.push([item.self[0], new_row])
 
-    if (Math.abs(item.self[0] - item.self[1]) !== 1) {
+    if (Math.abs(item.self[0] - item.self[1]) !== 1) {  // 如果坐标之差不等于1则可以斜着走
       new_column = item.self[0] + 1; new_row = item.self[1] + 1
       if (new_column <= 2 && new_row <= 2 && not_in_dict([new_column, new_row])) item.feasibility.push([new_column, new_row])
       new_column = item.self[0] - 1; new_row = item.self[1] - 1
@@ -65,7 +65,7 @@ export function NineholesAI(currunt: GameState) {
     }
   }
 
-  for (let item of whites) {
+  for (let item of whites) {  // 获取所有白子可行的坐标
     let new_column: number = 0
     let new_row: number = 0
 
@@ -110,7 +110,7 @@ export function NineholesAI(currunt: GameState) {
       let columns: number[] = [next_step[0], other_1[0], other_2[0]]
       let rows: number[] = [next_step[1], other_1[1], other_2[1]]
 
-      if (next_step[0] === other_1[0] && other_1[0] === other_2[0]) {
+      if (next_step[0] === other_1[0] && other_1[0] === other_2[0]) {  // 判断是否胜利
         if (next_step[0] !== 2) return { last: whites[index].self, current: next_step }
       } else if (next_step[1] === other_1[1] && other_1[1] === other_2[1]) {
         return { last: whites[index].self, current: next_step }
@@ -122,7 +122,7 @@ export function NineholesAI(currunt: GameState) {
 
   // 你先走，小杜
   let black_wins: number[][] = []
-  for (let index = 0; index < 3; index++) {
+  for (let index = 0; index < 3; index++) {  // 获取黑子下一步就能获胜的坐标
     let item = blacks[index]
     for (let next_step of item.feasibility) {
       let other_1: number[]
@@ -148,7 +148,7 @@ export function NineholesAI(currunt: GameState) {
       }
     }
   }
-  for (let black_win of black_wins) {
+  for (let black_win of black_wins) {  // 去找可以去堵住的白子
     for (let index = 0; index < 3; index++) {
       let item = whites[index]
       for (let feasibility of item.feasibility) {
@@ -160,7 +160,7 @@ export function NineholesAI(currunt: GameState) {
   }
 
   // 暂停一下
-  function lose_if_left(next_step: number[]): boolean {
+  function lose_if_left(next_step: number[]): boolean {  // 如果白子走了，该占位能使黑子赢
     for (let index = 0; index < 3; index++) {
       let other_1: number[]
       let other_2: number[]
@@ -198,7 +198,7 @@ export function NineholesAI(currunt: GameState) {
     return false
   }
 
-  function get_free_character(curindex: number, current: number[]): number {
+  function get_free_character(curindex: number, current: number[]): number {  // 获取可动的白棋棋子数量
     let _whites: self_feasibility_dict[] = JSON.parse(JSON.stringify(whites))
     _whites[curindex].self = current
     for (let item of _whites) {
@@ -233,6 +233,7 @@ export function NineholesAI(currunt: GameState) {
     return free_character_num
   }
 
+  // 下一步就会被黑子包围，可动棋子为1，导致输的场面
   function next_step_lose_if_left(curindex: number, current: number[]): boolean {  // !CAUTION: blacks经过这个方法已经改变了
     let _whites: self_feasibility_dict[] = JSON.parse(JSON.stringify(whites))
     _whites[curindex].self = current
@@ -271,7 +272,7 @@ export function NineholesAI(currunt: GameState) {
   }
 
   // suit yourself
-  for (let index = 0; index < 100; index++) {
+  for (let index = 0; index < 100; index++) {  // 随你走，但是如果找不到赢的坐标则退出循环
     let random: number = parseInt((Math.random() * 3).toString())
     console.log(whites)
     if (whites[random].feasibility.length) {
