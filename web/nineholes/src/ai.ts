@@ -165,6 +165,43 @@ export function NineholesAI(currunt: GameState) {
     }
   }
 
+  // 能堵就堵
+  let black_maybe_wins: number[][] = []
+  for (let index = 0; index < 3; index++) {
+    let item = blacks[index]
+    let other_1: number[]
+    let other_2: number[]
+    if (index === 0) {
+      other_1 = blacks[1].self
+      other_2 = blacks[2].self
+    } else if (index === 1) {
+      other_1 = blacks[0].self
+      other_2 = blacks[2].self
+    } else {
+      other_1 = blacks[0].self
+      other_2 = blacks[1].self
+    }
+    if (other_1[0] === other_2[0]) {
+      if (Math.abs((other_1[1] - other_2[1])) === 2) black_maybe_wins.push([other_1[0], 1])
+    } else if (other_1[1] === other_2[1]) {
+      if (Math.abs((other_1[1] - other_2[1])) === 2) black_maybe_wins.push([1, other_1[1]])
+    } else if ((Math.abs(other_1[0] - other_2[0]) === 2) && (Math.abs(other_1[1] - other_2[1]) === 2)) {
+      black_maybe_wins.push([1, 1])
+    }
+  }
+  if (black_maybe_wins.length === 1) {
+    for (let black_win of black_wins) {  // 去找可以去堵住的白子
+      for (let index = 0; index < 3; index++) {
+        let item = whites[index]
+        for (let feasibility of item.feasibility) {
+          if (black_win.toString() === feasibility.toString()) {
+            return { last: whites[index].self, current: feasibility }
+          }
+        }
+      }
+    }
+  }
+
   // 暂停一下
   function lose_if_left(next_step: number[]): boolean {  // 如果白子走了，该占位能使黑子赢
     for (let index = 0; index < 3; index++) {
@@ -293,8 +330,9 @@ export function NineholesAI(currunt: GameState) {
           i_can_win = true
         } else if (columns.sort().toString() === rows.sort().toString()) {
           if ((Array.from(new Set(columns)).length === 3) && (Math.abs(blacks[index].self[0] - blacks[index].self[1]) !== 1) && (Math.abs(other_1[0] - other_1[1]) !== 1) && (Math.abs(other_2[0] - other_2[1]) !== 1))
-          i_can_win = true
+            i_can_win = true
         }
+        console.log(blacks, other_1, other_2)
         if (!i_can_win && get_free_character(curindex, current) === 1) {
           if (other_1[0] === other_2[0] || other_1[1] === other_2[1]) {
             i_can_win = true
