@@ -190,7 +190,7 @@ export function NineholesAI(currunt: GameState) {
     }
   }
   if (black_maybe_wins.length === 1) {
-    for (let black_win of black_wins) {  // 去找可以去堵住的白子
+    for (let black_win of black_maybe_wins) {  // 去找可以去堵住的白子
       for (let index = 0; index < 3; index++) {
         let item = whites[index]
         for (let feasibility of item.feasibility) {
