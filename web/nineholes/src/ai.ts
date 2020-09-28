@@ -285,11 +285,12 @@ export function NineholesAI(currunt: GameState) {
       }
       for (let feasibility of blacks[index].feasibility) {
         blacks[index].self = feasibility
-        console.log(get_free_character(curindex, current))
         if (get_free_character(curindex, current) === 1) {
           if (other_1[0] === other_2[0] || other_1[1] === other_2[1]) {
             i_can_win = true
-          } else {
+          } else if ((Math.abs(other_1[0]-other_2[0])===1) && (Math.abs(other_1[1]-other_2[1])===1))  {
+            i_can_win = true
+          }else {
             i_can_win = false
           }
         }
@@ -301,7 +302,8 @@ export function NineholesAI(currunt: GameState) {
 
   // 拔刀
   if (!(blacks[0].self[0]+blacks[1].self[0]) || !(blacks[0].self[0]+blacks[2].self[0]) || !(blacks[1].self[0]+blacks[2].self[0])) {
-   whites[1].feasibility = [] 
+    if ((whites[0].self[0] === whites[1].self[0]) && (whites[2].self[0] === whites[1].self[0]))
+      whites[1].feasibility = [] 
   }
 
   // 众里寻他千百度，慕然回首，那人却在循环最深处
@@ -325,6 +327,7 @@ export function NineholesAI(currunt: GameState) {
       }
     }
   }
+  console.log(possible_list)
   if (possible_list.length) {
     let random: number = parseInt((Math.random() * possible_list.length).toString())
     return possible_list[random]
