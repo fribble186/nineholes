@@ -6,6 +6,11 @@ interface self_feasibility_dict {  // 存棋子自己的坐标和该棋子可行
   feasibility: number[][]
 }
 
+interface possiblility {
+  last: number[],
+  current: number[]
+}
+
 export function NineholesAI(currunt: GameState) {
   let character_list: Character[][] = currunt.character_list
   let blacks: self_feasibility_dict[] = []
@@ -187,9 +192,9 @@ export function NineholesAI(currunt: GameState) {
           i_can_win = true
       }
       if (i_can_win) {
-        if ((next_step[0] - blacks[index].self[0]) == 2) {
+        if (Math.abs(next_step[0] - blacks[index].self[0]) == 2) {
           i_can_win = false
-        } else if ((next_step[1] - blacks[index].self[1]) == 2) {
+        } else if (Math.abs(next_step[1] - blacks[index].self[1]) == 2) {
           i_can_win = false
         } else if ((Math.abs(blacks[index].self[0] - blacks[index].self[1]) === 1) && (Math.abs(next_step[0] - next_step[1]) === 1)) {
           i_can_win = false
@@ -268,7 +273,6 @@ export function NineholesAI(currunt: GameState) {
     for (let index = 0; index < 3; index++) {
       let other_1: number[]
       let other_2: number[]
-      let i_can_win: boolean = false
       if (index === 0) {
         other_1 = _blacks[1].self
         other_2 = _blacks[2].self
@@ -283,8 +287,6 @@ export function NineholesAI(currunt: GameState) {
         blacks[index].self = feasibility
         console.log(get_free_character(curindex, current))
         if (get_free_character(curindex, current) === 1) {
-          i_can_win = true
-        } else if (get_free_character(curindex, current) === 2) {
           if (other_1[0] === other_2[0] || other_1[1] === other_2[1]) {
             i_can_win = true
           } else {
@@ -297,19 +299,38 @@ export function NineholesAI(currunt: GameState) {
     return i_can_win
   }
 
-  // suit yourself
-  for (let index = 0; index < 100; index++) {  // 随你走，但是如果找不到赢的坐标则退出循环
-    let random: number = parseInt((Math.random() * 3).toString())
-    if (whites[random].feasibility.length) {
-      if (lose_if_left(whites[random].self)) continue
-      let f_random: number = parseInt((Math.random() * whites[random].feasibility.length).toString())
-      if (get_free_character(random, whites[random].feasibility[f_random]) === 1) continue
-      if (next_step_lose_if_left(random, whites[random].feasibility[f_random])) continue
-      return { last: whites[random].self, current: whites[random].feasibility[f_random] }
-    }
+  // 拔刀
+  if (!(blacks[0].self[0]+blacks[1].self[0]) || !(blacks[0].self[0]+blacks[2].self[0]) || !(blacks[1].self[0]+blacks[2].self[0])) {
+   whites[1].feasibility = [] 
   }
 
-  // desperate
+  // 众里寻他千百度，慕然回首，那人却在循环最深处
+  let possible_list: possiblility[] = []
+  for (let index = 0; index < 3; index++) {
+    if (whites[index].feasibility.length) {
+      if (lose_if_left(whites[index].self)) {
+        console.log("这一步让了我就输了" + whites[index].self)
+        continue
+      }
+      for (let f_random = 0; f_random < whites[index].feasibility.length; f_random++) {
+        if (get_free_character(f_random, whites[index].feasibility[f_random]) === 1) {
+          console.log("这一步下去我会走投无路" + whites[index].self + "," + whites[index].feasibility[f_random])
+          continue
+        }
+        if (next_step_lose_if_left(index, whites[index].feasibility[f_random])) {
+          console.log("这一步下去黑子再走一步我会走投无路" + whites[index].self + "," + whites[index].feasibility[f_random])
+          continue
+        }
+        possible_list.push({last: whites[index].self, current: whites[index].feasibility[f_random]} )
+      }
+    }
+  }
+  if (possible_list.length) {
+    let random: number = parseInt((Math.random() * possible_list.length).toString())
+    return possible_list[random]
+  }
+
+  // 绝望desperate
   for (let index = 0; index < 3; index++) {
     if (whites[index].feasibility.length) {
       if (lose_if_left(whites[index].self)) continue
