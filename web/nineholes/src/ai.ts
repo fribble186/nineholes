@@ -240,7 +240,7 @@ export function NineholesAI(currunt: GameState) {
     return free_character_num
   }
 
-  // 下一步就会被黑子包围，可动棋子为1，导致输的场面
+  // 下一步就会被黑子包围或黑子赢了，可动棋子为1，导致输的场面
   function next_step_lose_if_left(curindex: number, current: number[]): boolean {  // !CAUTION: blacks经过这个方法已经改变了
     let _whites: self_feasibility_dict[] = JSON.parse(JSON.stringify(whites))
     _whites[curindex].self = current
@@ -285,12 +285,22 @@ export function NineholesAI(currunt: GameState) {
       }
       for (let feasibility of blacks[index].feasibility) {
         blacks[index].self = feasibility
-        if (get_free_character(curindex, current) === 1) {
+        let columns: number[] = [blacks[index].self[0], other_1[0], other_2[0]]
+        let rows: number[] = [blacks[index].self[1], other_1[1], other_2[1]]
+        if (blacks[index].self[0] === other_1[0] && other_1[0] === other_2[0]) {
+          if (blacks[index].self[0] !== 0) i_can_win = true
+        } else if (blacks[index].self[1] === other_1[1] && other_1[1] === other_2[1]) {
+          i_can_win = true
+        } else if (columns.sort().toString() === rows.sort().toString()) {
+          if ((Array.from(new Set(columns)).length === 3) && (Math.abs(blacks[index].self[0] - blacks[index].self[1]) !== 1) && (Math.abs(other_1[0] - other_1[1]) !== 1) && (Math.abs(other_2[0] - other_2[1]) !== 1))
+          i_can_win = true
+        }
+        if (!i_can_win && get_free_character(curindex, current) === 1) {
           if (other_1[0] === other_2[0] || other_1[1] === other_2[1]) {
             i_can_win = true
-          } else if ((Math.abs(other_1[0]-other_2[0])===1) && (Math.abs(other_1[1]-other_2[1])===1))  {
+          } else if ((Math.abs(other_1[0] - other_2[0]) === 1) && (Math.abs(other_1[1] - other_2[1]) === 1)) {
             i_can_win = true
-          }else {
+          } else {
             i_can_win = false
           }
         }
@@ -301,9 +311,9 @@ export function NineholesAI(currunt: GameState) {
   }
 
   // 拔刀
-  if (!(blacks[0].self[0]+blacks[1].self[0]) || !(blacks[0].self[0]+blacks[2].self[0]) || !(blacks[1].self[0]+blacks[2].self[0])) {
+  if (!(blacks[0].self[0] + blacks[1].self[0]) || !(blacks[0].self[0] + blacks[2].self[0]) || !(blacks[1].self[0] + blacks[2].self[0])) {
     if ((whites[0].self[0] === whites[1].self[0]) && (whites[2].self[0] === whites[1].self[0]))
-      whites[1].feasibility = [] 
+      whites[1].feasibility = []
   }
 
   // 众里寻他千百度，慕然回首，那人却在循环最深处
@@ -323,7 +333,7 @@ export function NineholesAI(currunt: GameState) {
           console.log("这一步下去黑子再走一步我会走投无路" + whites[index].self + "," + whites[index].feasibility[f_random])
           continue
         }
-        possible_list.push({last: whites[index].self, current: whites[index].feasibility[f_random]} )
+        possible_list.push({ last: whites[index].self, current: whites[index].feasibility[f_random] })
       }
     }
   }
