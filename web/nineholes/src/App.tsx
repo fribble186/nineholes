@@ -170,7 +170,7 @@ function MainStage(props: { room_id: string }) {  // 主舞台，页面
     if (is_change && my_websocket) {  // 有房间号开启websocket
       my_websocket.send(JSON.stringify({ room: props.room_id, data: _game_status }))
       console.log("send success")
-    } else if (is_change && props.room_id === "ai" && !_game_status.winner) {  // 与ai对战
+    } else if (is_change && props.room_id === "jsai" && !_game_status.winner) {  // 与ai对战
       let result: { last: number[], current: number[] } | null = NineholesAI(_game_status)
       if (result) {
         let temp = _game_status.character_list[result.current[0]][result.current[1]]
