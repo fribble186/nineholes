@@ -18,7 +18,7 @@ export interface Character {  // 棋盘列表中每个棋子的类型
 export interface GameState {  // 游戏的所有状态
   character_list: Character[][],  // 棋盘列表
   player: Player | null,  // 当前回合的棋子
-  status: GameStatus, 
+  status: GameStatus,
   winner: Player | null  // 赢家的棋子
 }
 
@@ -47,12 +47,32 @@ function MainStage(props: { room_id: string }) {  // 主舞台，页面
   const [my_websocket, set_websocket] = useState<WebSocket>()  // websocket连接类
   useEffect(() => {  // 类似componentdidmount
     let _game_status: GameState = JSON.parse(JSON.stringify(game_status))
-    if (props.room_id === "ai") {
+    var ws: WebSocket
+    if (props.room_id === "jsai") {
       change_my_role(Player.black)
       _game_status.status = GameStatus.start
       change_game_status(_game_status)
+    } else if (props.room_id === "ai") {
+      ws = new WebSocket("ws://127.0.0.1:8010/ws/" + props.room_id);
+      ws.onopen = function () {
+        console.log("connection start")
+      }
+      ws.onmessage = function (event: any) {
+        console.log(event)
+        if (Number(event.data) === 0) {
+          change_my_role(Player.black)
+          _game_status.status = GameStatus.start
+          change_game_status(_game_status)
+        } else if (Number(event.data)) {
+          change_my_role(null)
+        } else {
+          let data = JSON.parse(event.data)
+          change_game_status(data.data)
+        }
+      }
+      set_websocket(ws)
     } else {
-      var ws: WebSocket = new WebSocket("ws://101.133.238.228:8010/ws/" + props.room_id);
+      ws = new WebSocket("ws://101.133.238.228:8010/ws/" + props.room_id);
       ws.onopen = function () {
         console.log("connection start")
       }
