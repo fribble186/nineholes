@@ -31,7 +31,7 @@ def init_environment():
 
 
 def init_return_matrix(environment: List[Dict[str, List[int]]]):
-    return_matrix = np.zeros((len(environment), len(environment)), int)
+    return_matrix = np.zeros((len(environment), len(environment)), float)
     common_win = [[3, 4, 5], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
     black_wins = common_win.copy()
     white_wins = common_win.copy()
@@ -83,6 +83,70 @@ def init_return_matrix(environment: List[Dict[str, List[int]]]):
                 return_matrix[index_0][index_1] = 0
                 for white_win in white_wins:  # 白子赢的情况
                     if operator.eq(cur_action["white"], white_win):
+                        return_matrix[index_0][index_1] = 0
+            else:
+                return_matrix[index_0][index_1] = -1
+
+    return return_matrix
+
+
+def init_black_matrix(environment: List[Dict[str, List[int]]]):
+    return_matrix = np.zeros((len(environment), len(environment)), float)
+    common_win = [[3, 4, 5], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
+    black_wins = common_win.copy()
+    white_wins = common_win.copy()
+    black_wins.append([6, 7, 8])
+    white_wins.append([0, 1, 2])
+
+    for index_0 in range(len(environment)):
+        for black_win in black_wins:  # 黑子赢的state+1
+            if operator.eq(environment[index_0]["black"], black_win):
+                return_matrix[[index_0], :] = 1
+        if return_matrix[[index_0], 0] == 1:
+            continue
+        for white_win in white_wins:  # 白子赢的state-1
+            if operator.eq(environment[index_0]["white"], white_win):
+                return_matrix[[index_0], :] = -1
+        if return_matrix[[index_0], 0] == -1:
+            continue
+
+        for index_1 in range(len(environment)):
+            can_move = False
+            cur_state = environment[index_0]  # 当前state
+            cur_action = environment[index_1]  # 当前action
+            common_counter = 0  # 记录多少个黑子是相同的
+            diff_index = []
+
+            # 规则
+            if operator.eq(cur_state["white"], cur_action["white"]):  # 白子不能动
+                if not operator.eq(cur_state["black"], cur_action["black"]):  # 黑子必须动
+                    for index in range(3):  # 黑子只能动一步
+                        if cur_state["black"][index] in cur_action["black"]:
+                            common_counter += 1
+                    for cur_state_index in range(3):
+                        for cur_action_index in range(3):
+                            if (cur_state["black"][cur_state_index] not in cur_action["black"]) and (
+                                    cur_action["black"][cur_action_index] not in cur_state["black"]):
+                                diff_index = [cur_state["black"][cur_state_index],
+                                              cur_action["black"][cur_action_index]]
+                    if common_counter == 2:
+                        if abs(diff_index[0] - diff_index[1]) == 1:
+                            diff_index.sort()
+                            if not operator.eq(diff_index, [2, 3]) and not operator.eq(diff_index, [5, 6]):
+                                can_move = True
+                        if abs(diff_index[0] - diff_index[1]) == 3:
+                            can_move = True
+                        if diff_index[0] in [0, 4, 8] and diff_index[1] in [0, 4, 8] and abs(
+                                diff_index[0] - diff_index[1]) == 4:
+                            can_move = True
+                        if diff_index[0] in [2, 4, 6] and diff_index[1] in [2, 4, 6] and abs(
+                                diff_index[0] - diff_index[1]) == 2:
+                            can_move = True
+
+            if can_move:
+                return_matrix[index_0][index_1] = 0
+                for black_win in black_wins:  # 黑子赢的情况
+                    if operator.eq(cur_action["black"], black_win):
                         return_matrix[index_0][index_1] = 1
             else:
                 return_matrix[index_0][index_1] = -1
@@ -95,7 +159,7 @@ def start_train():
     return_matrix = init_return_matrix(environment)
     q_matrix = return_matrix
     discount = 0.8
-    horizon = 10
+    horizon = 2
 
     for i in range(horizon):
         for state in range(len(environment)):
@@ -103,7 +167,6 @@ def start_train():
             for action in range(len(environment)):
                 if return_matrix[state][action] >= 0:
                     next_actions.append(action)
-            print(state)
             if len(next_actions) == 0:
                 continue
             for next_index in range(len(next_actions)):
@@ -121,18 +184,11 @@ def test(q):
                 a[0] += 1
             elif q[i][j] == 1:
                 a[1] += 1
-            elif 2 < q[i][j] < 3:
-                a[2] += 1
-            elif 3 < q[i][j] < 3.5:
-                a[3] += 1
-            elif 3.5 < q[i][j] < 4:
-                a[3.5] += 1
-            elif 4 < q[i][j] < 4.5:
-                a[4] += 1
-            elif 4.5 < q[i][j] < 5:
-                a[4.5] += 1
-            elif q[i][j] > 5:
-                a[5] += 1
+            elif q[i][j] != -1 and q[i][j] != 0 and q[i][j] != 1:
+                if q[i][j] < 0:
+                    a[2] += 1
+                else:
+                    a[3] += 1
     print(a)
 
 
@@ -149,6 +205,6 @@ def save_obj(q):
 # r = init_return_matrix(init_environment())
 # np.set_printoptions(threshold=np.inf)
 # print(r)
-q = start_train()
-save_obj(q)
+# q = start_train()
+# test(q)
 

@@ -53,7 +53,7 @@ function MainStage(props: { room_id: string }) {  // 主舞台，页面
       _game_status.status = GameStatus.start
       change_game_status(_game_status)
     } else if (props.room_id === "ai") {
-      ws = new WebSocket("ws://101.133.238.228:8010/ws/" + props.room_id);
+      ws = new WebSocket("ws://127.0.0.1:8010/ws/" + props.room_id);
       ws.onopen = function () {
         console.log("connection start")
       }
@@ -62,6 +62,26 @@ function MainStage(props: { room_id: string }) {  // 主舞台，页面
         if (Number(event.data) === 0) {
           change_my_role(Player.black)
           _game_status.status = GameStatus.start
+          change_game_status(_game_status)
+        } else if (Number(event.data)) {
+          change_my_role(null)
+        } else {
+          let data = JSON.parse(event.data)
+          change_game_status(data.data)
+        }
+      }
+      set_websocket(ws)
+    } else if (props.room_id === "train") {
+      ws = new WebSocket("ws://127.0.0.1:8010/ws/" + props.room_id);
+      ws.onopen = function () {
+        console.log("connection start")
+      }
+      ws.onmessage = function (event: any) {
+        console.log(event)
+        if (Number(event.data) === 0) {
+          change_my_role(Player.black)
+          _game_status.status = GameStatus.start
+          ws.send(JSON.stringify({ room: props.room_id, data: _game_status }))
           change_game_status(_game_status)
         } else if (Number(event.data)) {
           change_my_role(null)
@@ -98,7 +118,7 @@ function MainStage(props: { room_id: string }) {  // 主舞台，页面
 
   useEffect(() => {  // 判断赢家有没有出现，出现则结束游戏
     if (game_status.winner == null) return
-    my_websocket?.close()
+    // my_websocket?.close()
     let _game_status: GameState = JSON.parse(JSON.stringify(game_status))
     _game_status.status = GameStatus.end
     change_game_status(_game_status)
