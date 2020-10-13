@@ -53,7 +53,7 @@ function MainStage(props: { room_id: string }) {  // 主舞台，页面
       _game_status.status = GameStatus.start
       change_game_status(_game_status)
     } else if (props.room_id === "ai") {
-      ws = new WebSocket("ws://127.0.0.1:8010/ws/" + props.room_id);
+      ws = new WebSocket("ws://101.133.238.228:8010/ws/" + props.room_id);
       ws.onopen = function () {
         console.log("connection start")
       }
