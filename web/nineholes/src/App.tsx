@@ -190,9 +190,22 @@ function MainStage(props: { room_id: string }) {  // 主舞台，页面
       }
     }
     _game_status.winner = whoWin(_game_status)
-    if (is_change && my_websocket) {  // 有房间号开启websocket
+    if (is_change && props.room_id.indexOf("ai+")===-1 && my_websocket) {  // 有房间号开启websocket
       my_websocket.send(JSON.stringify({ room: props.room_id, data: _game_status }))
       console.log("send success")
+    } else if (is_change && my_websocket) {
+      console.log("ai+")
+      let result: { last: number[], current: number[] } | null = NineholesAI(_game_status, true)
+      if (result) {
+        let temp = _game_status.character_list[result.current[0]][result.current[1]]
+        _game_status.character_list[result.current[0]][result.current[1]] = _game_status.character_list[result.last[0]][result.last[1]]
+        _game_status.character_list[result.last[0]][result.last[1]] = temp
+        _game_status.player = _game_status.player === Player.black ? Player.white : Player.black
+        _game_status.winner = whoWin(_game_status)
+      } else {
+        my_websocket.send(JSON.stringify({ room: props.room_id, data: _game_status }))
+        console.log("send success")
+      }
     } else if (is_change && props.room_id === "jsai" && !_game_status.winner) {  // 与ai对战
       let result: { last: number[], current: number[] } | null = NineholesAI(_game_status)
       if (result) {

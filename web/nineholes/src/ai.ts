@@ -11,7 +11,7 @@ interface possiblility {
   current: number[]
 }
 
-export function NineholesAI(currunt: GameState) {
+export function NineholesAI(currunt: GameState, isPlus: boolean = false) {
   let character_list: Character[][] = currunt.character_list
   let blacks: self_feasibility_dict[] = []
   let whites: self_feasibility_dict[] = []
@@ -376,6 +376,11 @@ export function NineholesAI(currunt: GameState) {
     }
   }
   console.log(possible_list)
+  if (isPlus) {
+    if (possible_list.length > 1) {
+      return null
+    }
+  }
   if (possible_list.length) {
     let random: number = parseInt((Math.random() * possible_list.length).toString())
     return possible_list[random]
