@@ -2,6 +2,7 @@ import React from 'react';
 import './App.css';
 import { useState, useEffect } from 'react'
 import { NineholesAI } from './ai'
+import config from './config';
 
 interface CharacterProps {  // 棋子的props类型
   type: Player | null,
@@ -45,6 +46,8 @@ function MainStage(props: { room_id: string }) {  // 主舞台，页面
   const [game_status, change_game_status] = useState<GameState>(default_character_state)
   const [my_role, change_my_role] = useState<Player | null>()  // 我被分配到的棋子类型
   const [my_websocket, set_websocket] = useState<WebSocket>()  // websocket连接类
+  const ws_url = config.url
+  const dev_ws_url = config.dev_url
   useEffect(() => {  // 类似componentdidmount
     let _game_status: GameState = JSON.parse(JSON.stringify(game_status))
     var ws: WebSocket
@@ -53,7 +56,7 @@ function MainStage(props: { room_id: string }) {  // 主舞台，页面
       _game_status.status = GameStatus.start
       change_game_status(_game_status)
     } else if (props.room_id.indexOf("ai") !== -1) {
-      ws = new WebSocket("ws://101.133.238.228:8010/ws/" + props.room_id);
+      ws = new WebSocket(ws_url + props.room_id);
       ws.onopen = function () {
         console.log("connection start")
       }
@@ -72,7 +75,7 @@ function MainStage(props: { room_id: string }) {  // 主舞台，页面
       }
       set_websocket(ws)
     } else if (props.room_id === "train") {
-      ws = new WebSocket("ws://127.0.0.1:8010/ws/" + props.room_id);
+      ws = new WebSocket(dev_ws_url + props.room_id);
       ws.onopen = function () {
         console.log("connection start")
       }
@@ -92,7 +95,7 @@ function MainStage(props: { room_id: string }) {  // 主舞台，页面
       }
       set_websocket(ws)
     } else {
-      ws = new WebSocket("ws://101.133.238.228:8010/ws/" + props.room_id);
+      ws = new WebSocket(ws_url + props.room_id);
       ws.onopen = function () {
         console.log("connection start")
       }

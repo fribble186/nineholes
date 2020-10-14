@@ -1,20 +1,29 @@
+"""
+生成棋盘所有的环境
+生成白子和黑子的收益矩阵，r matrix
+测试和保存期望收益举证，q matrix
+"""
 from typing import List, Dict
 import numpy as np
 import operator
-import random
 import pickle
 
 
 def init_environment():
+    """
+    生成所有的棋盘情况，C93 * C63 1680种情况
+    """
     characters: List[Dict[str, List[int]]] = []
     blacks = []
     normal_list: List[int] = []
+    # 黑子的所有情况
     for cell_1 in range(0, 9, 1):
         normal_list.append(cell_1)
         for cell_2 in range(cell_1 + 1, 9, 1):
             for cell_3 in range(cell_2 + 1, 9, 1):
                 blacks.append([cell_1, cell_2, cell_3])
 
+    # 除了黑子占用的，白子的所有情况
     for black in blacks:
         unavailable_list = black.copy()
         for cell_1 in range(0, 9, 1):
@@ -31,20 +40,26 @@ def init_environment():
 
 
 def init_return_matrix(environment: List[Dict[str, List[int]]]):
+    """
+    生成1680 * 1680的白子 return 矩阵，其中
+    0是可以走的格子
+    1是白子赢的格子
+    -1是白子输的格子
+    """
     return_matrix = np.zeros((len(environment), len(environment)), float)
     common_win = [[3, 4, 5], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
     black_wins = common_win.copy()
     white_wins = common_win.copy()
-    black_wins.append([6, 7, 8])
-    white_wins.append([0, 1, 2])
+    black_wins.append([6, 7, 8])  # 黑子赢的情况
+    white_wins.append([0, 1, 2])  # 白子赢的情况
 
     for index_0 in range(len(environment)):
-        for black_win in black_wins:  # 黑子赢的state-1
+        for black_win in black_wins:  # 黑子赢的state行为-1
             if operator.eq(environment[index_0]["black"], black_win):
                 return_matrix[[index_0], :] = -1
         if return_matrix[[index_0], 0] == -1:
             continue
-        for white_win in white_wins:  # 白子赢的state+1
+        for white_win in white_wins:  # 白子赢的state行为1
             if operator.eq(environment[index_0]["white"], white_win):
                 return_matrix[[index_0], :] = 1
         if return_matrix[[index_0], 0] == 1:
@@ -91,6 +106,9 @@ def init_return_matrix(environment: List[Dict[str, List[int]]]):
 
 
 def init_black_matrix(environment: List[Dict[str, List[int]]]):
+    """
+    生成1680 * 1680的黑子 return 矩阵，其中
+    """
     return_matrix = np.zeros((len(environment), len(environment)), float)
     common_win = [[3, 4, 5], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
     black_wins = common_win.copy()
@@ -154,29 +172,11 @@ def init_black_matrix(environment: List[Dict[str, List[int]]]):
     return return_matrix
 
 
-def start_train():
-    environment = init_environment()
-    return_matrix = init_return_matrix(environment)
-    q_matrix = return_matrix
-    discount = 0.8
-    horizon = 2
-
-    for i in range(horizon):
-        for state in range(len(environment)):
-            next_actions = []
-            for action in range(len(environment)):
-                if return_matrix[state][action] >= 0:
-                    next_actions.append(action)
-            if len(next_actions) == 0:
-                continue
-            for next_index in range(len(next_actions)):
-                next_state = next_actions[next_index]
-                q_matrix[state][next_state] = return_matrix[state][next_state] + discount * (q_matrix[next_state]).max()
-
-    return q_matrix
-
-
 def test(q):
+    """
+    测试查看q矩阵的概况
+    调试时使用
+    """
     a = {0: 0, 1: 0, 2: 0, 3: 0, 3.5: 0, 4: 0, 4.5: 0, 5: 0}
     for i in range(1680):
         for j in range(1680):
@@ -193,6 +193,9 @@ def test(q):
 
 
 def save_obj(q):
+    """
+    保存q矩阵和所有棋盘情况
+    """
     obj = {
         "environment": init_environment(),
         "q_matrix": q
