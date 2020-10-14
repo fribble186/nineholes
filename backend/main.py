@@ -215,7 +215,7 @@ async def websocket_endpoint(ws: WebSocket, room: str):
             data = json.loads(data)
             room = data["room"]
             if room:
-                if room == "ai":
+                if "ai" in room:
                     next_state = ai_process(data["data"])
                     data["data"] = next_state
                     await manager.send_other_message(data, room)
