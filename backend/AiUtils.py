@@ -310,7 +310,7 @@ def init_black_return_matrix(environment: List[Dict[str, List[int]]]):
 
 def init_black_p_matrix(environment: List[Dict[str, List[int]]]):
     """
-    生成1680 * 1680的黑子的初始 状态转移 矩阵，其中
+    生成1680 * 1680的黑子的初始 状态转移 矩阵
     """
     return np.ones((len(environment), len(environment)), float)
 
@@ -337,7 +337,8 @@ def test(q):
 
 def save_obj(q, r, p, count):
     """
-    保存q矩阵和所有棋盘情况
+    保存白子q矩阵，白子r矩阵
+    保存黑子状态转移概率矩阵
     """
     np.save("q_matrix.npy", q)
     np.save("r_matrix.npy", r)
