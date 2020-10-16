@@ -409,7 +409,7 @@ async def websocket_endpoint(ws: WebSocket, room: str):
                                 data["data"] = state
                                 await asyncio.sleep(0.1)
                                 await manager.send_other_message(data, room)
-                # 可视化对抗训练200次
+                # 可视化对抗训练1次
                 elif room == "train":
                     state = data["data"]
 
@@ -419,7 +419,7 @@ async def websocket_endpoint(ws: WebSocket, room: str):
                         print("return", new_return)
                         print("game count", learner.game_count)
                         await asyncio.sleep(0.1)
-                        if learner.game_count > 100:
+                        if learner.game_count > 0:
                             AiUtils.save_obj(learner.white_q_matrix, learner.white_r_matrix, learner.black_p_matrix, learner.game_count)
                             print("saved Q")
                         else:
@@ -434,10 +434,10 @@ async def websocket_endpoint(ws: WebSocket, room: str):
                             print("return", new_return)
                             print("game count", learner.game_count)
                             await asyncio.sleep(1)
-                            if learner.game_count > 200:
+                            if learner.game_count > 0:
                                 AiUtils.save_obj(learner.white_q_matrix, learner.white_r_matrix, learner.black_p_matrix, learner.game_count)
                                 print("saved Q")
-                        if learner.game_count <= 200:
+                        if learner.game_count <= 0:
                             data["data"] = state
                             await asyncio.sleep(0.1)
                             await manager.send_other_message(data, room)

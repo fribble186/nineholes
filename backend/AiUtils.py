@@ -182,6 +182,7 @@ def init_white_q_matrix(environment: List[Dict[str, List[int]]]):
     1是白子赢的格子
     -1是白子输的格子
     """
+
     return_matrix = np.zeros((len(environment), len(environment)), float)
     common_win = [[3, 4, 5], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]]
     black_wins = common_win.copy()
@@ -234,7 +235,7 @@ def init_white_q_matrix(environment: List[Dict[str, List[int]]]):
                 return_matrix[index_0][index_1] = 0
                 for white_win in white_wins:  # 白子赢的情况
                     if operator.eq(cur_action["white"], white_win):
-                        return_matrix[index_0][index_1] = 1
+                        return_matrix[index_0][index_1] = 0
             else:
                 return_matrix[index_0][index_1] = -1
 
