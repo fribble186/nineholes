@@ -70,7 +70,7 @@ function MainStage(props: { room_id: string }) {  // 主舞台，页面
       }
       change_game_status(_game_status)
     } else if (props.room_id.indexOf("ai") !== -1 && props.room_id !== "train") {
-      ws = new WebSocket(dev_ws_url + props.room_id);
+      ws = new WebSocket(ws_url + props.room_id);
       ws.onopen = function () {
         console.log("connection start")
       }
