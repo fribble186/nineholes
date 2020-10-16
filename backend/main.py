@@ -275,6 +275,7 @@ class AlphaSJ(object):
                     "q": None
                 })
         if win_index == -1:
+            print("no win index")
             for available in available_list:
                 available["black_available_list"] = [index for index, item in enumerate(available["black_r_list"]) if
                                                      available["black_r_list"][index] != -1]
@@ -295,6 +296,8 @@ class AlphaSJ(object):
                         available["q"] += (self.black_p_matrix[
                                                available["black_state_index"], black_available] / count) * max(
                             q_available_list)
+            for available in available_list:
+                print(available)
             if len(available_list) > 0:
                 max_q = max([item["q"] for item in available_list])
                 next_states = []
@@ -387,7 +390,8 @@ async def websocket_endpoint(ws: WebSocket, room: str):
                                 agent.train(new_return)
                                 print("return", new_return)
                                 print("game count", agent.game_count)
-                                await asyncio.sleep(1)
+                                await asyncio.sleep(0.1)
+                                await manager.send_other_message("continue", room)
                                 AiUtils.save_obj(agent.white_q_matrix, agent.white_r_matrix, agent.black_p_matrix, agent.game_count)
                                 print("saved Q")
                             else:
@@ -414,8 +418,8 @@ async def websocket_endpoint(ws: WebSocket, room: str):
                         learner.train(new_return)
                         print("return", new_return)
                         print("game count", learner.game_count)
-                        await asyncio.sleep(1)
-                        if learner.game_count > 200:
+                        await asyncio.sleep(0.1)
+                        if learner.game_count > 100:
                             AiUtils.save_obj(learner.white_q_matrix, learner.white_r_matrix, learner.black_p_matrix, learner.game_count)
                             print("saved Q")
                         else:
@@ -429,7 +433,7 @@ async def websocket_endpoint(ws: WebSocket, room: str):
                             learner.train(new_return)
                             print("return", new_return)
                             print("game count", learner.game_count)
-                            await asyncio.sleep(0.1)
+                            await asyncio.sleep(1)
                             if learner.game_count > 200:
                                 AiUtils.save_obj(learner.white_q_matrix, learner.white_r_matrix, learner.black_p_matrix, learner.game_count)
                                 print("saved Q")

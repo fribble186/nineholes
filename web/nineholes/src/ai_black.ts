@@ -166,41 +166,41 @@ export function BlackNineholesAI(currunt: GameState, isPlus: boolean = false) {
   }
   console.log(3)
   // 能堵就堵
-  let white_maybe_wins: number[][] = []
-  for (let index = 0; index < 3; index++) {
-    let item = whites[index]
-    let other_1: number[]
-    let other_2: number[]
-    if (index === 0) {
-      other_1 = whites[1].self
-      other_2 = whites[2].self
-    } else if (index === 1) {
-      other_1 = whites[0].self
-      other_2 = whites[2].self
-    } else {
-      other_1 = whites[0].self
-      other_2 = whites[1].self
-    }
-    if (other_1[0] === other_2[0]) {
-      if (Math.abs((other_1[1] - other_2[1])) === 0) white_maybe_wins.push([other_1[0], 1])
-    } else if (other_1[1] === other_2[1]) {
-      if (Math.abs((other_1[1] - other_2[1])) === 0) white_maybe_wins.push([1, other_1[1]])
-    } else if ((Math.abs(other_1[0] - other_2[0]) === 0) && (Math.abs(other_1[1] - other_2[1]) === 0)) {
-      white_maybe_wins.push([1, 1])
-    }
-  }
-  if (white_maybe_wins.length === 1) {
-    for (let white_win of white_maybe_wins) {  // 去找可以去堵住的黑子
-      for (let index = 0; index < 3; index++) {
-        let item = blacks[index]
-        for (let feasibility of item.feasibility) {
-          if (white_win.toString() === feasibility.toString()) {
-            return { last: blacks[index].self, current: feasibility }
-          }
-        }
-      }
-    }
-  }
+  // let white_maybe_wins: number[][] = []
+  // for (let index = 0; index < 3; index++) {
+  //   let item = whites[index]
+  //   let other_1: number[]
+  //   let other_2: number[]
+  //   if (index === 0) {
+  //     other_1 = whites[1].self
+  //     other_2 = whites[2].self
+  //   } else if (index === 1) {
+  //     other_1 = whites[0].self
+  //     other_2 = whites[2].self
+  //   } else {
+  //     other_1 = whites[0].self
+  //     other_2 = whites[1].self
+  //   }
+  //   if (other_1[0] === other_2[0]) {
+  //     if (Math.abs((other_1[1] - other_2[1])) === 0) white_maybe_wins.push([other_1[0], 1])
+  //   } else if (other_1[1] === other_2[1]) {
+  //     if (Math.abs((other_1[1] - other_2[1])) === 0) white_maybe_wins.push([1, other_1[1]])
+  //   } else if ((Math.abs(other_1[0] - other_2[0]) === 0) && (Math.abs(other_1[1] - other_2[1]) === 0)) {
+  //     white_maybe_wins.push([1, 1])
+  //   }
+  // }
+  // if (white_maybe_wins.length === 1) {
+  //   for (let white_win of white_maybe_wins) {  // 去找可以去堵住的黑子
+  //     for (let index = 0; index < 3; index++) {
+  //       let item = blacks[index]
+  //       for (let feasibility of item.feasibility) {
+  //         if (white_win.toString() === feasibility.toString()) {
+  //           return { last: blacks[index].self, current: feasibility }
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
 
   // 暂停一下
   function lose_if_left(next_step: number[]): boolean {  // 如果黑子走了，该占位能使白子赢
@@ -221,7 +221,7 @@ export function BlackNineholesAI(currunt: GameState, isPlus: boolean = false) {
       let columns: number[] = [next_step[0], other_1[0], other_2[0]]
       let rows: number[] = [next_step[1], other_1[1], other_2[1]]
       if (next_step[0] === other_1[0] && other_1[0] === other_2[0]) {
-        if (next_step[0] !== 0) i_can_win = true
+        if (next_step[0] !== 2) i_can_win = true
       } else if (next_step[1] === other_1[1] && other_1[1] === other_2[1]) {
         i_can_win = true
       } else if (columns.sort().toString() === rows.sort().toString()) {
@@ -229,9 +229,9 @@ export function BlackNineholesAI(currunt: GameState, isPlus: boolean = false) {
           i_can_win = true
       }
       if (i_can_win) {
-        if (Math.abs(next_step[0] - whites[index].self[0]) == 0) {
+        if (Math.abs(next_step[0] - whites[index].self[0]) == 2) {
           i_can_win = false
-        } else if (Math.abs(next_step[1] - whites[index].self[1]) == 0) {
+        } else if (Math.abs(next_step[1] - whites[index].self[1]) == 2) {
           i_can_win = false
         } else if ((Math.abs(whites[index].self[0] - whites[index].self[1]) === 1) && (Math.abs(next_step[0] - next_step[1]) === 1)) {
           i_can_win = false
@@ -349,10 +349,14 @@ export function BlackNineholesAI(currunt: GameState, isPlus: boolean = false) {
   }
 
   // 拔刀
-  // if (!(whites[0].self[0] + whites[1].self[0]) || !(whites[0].self[0] + whites[2].self[0]) || !(whites[1].self[0] + whites[2].self[0])) {
-  //   if ((blacks[0].self[0] === blacks[1].self[0]) && (blacks[2].self[0] === blacks[1].self[0]))
-  //     blacks[1].feasibility = []
-  // }
+  console.log(blacks, whites)
+  if (whites[0].self[0] === 2 && whites[1].self[0] === 2 && whites[2].self[0] === 2) {
+    console.log("拔刀")
+    if ((blacks[0].self[0] === blacks[1].self[0]) && (blacks[2].self[0] === blacks[1].self[0])) {
+      blacks[0].feasibility = blacks[0].feasibility.filter(item => (item[0] !== 1 || item[1] !== 1))
+      blacks[2].feasibility = blacks[2].feasibility.filter(item => (item[0] !== 1 || item[1] !== 1))
+    }
+  }
 
   // 众里寻他千百度，慕然回首，那人却在循环最深处
   let possible_list: possiblility[] = []
@@ -363,15 +367,15 @@ export function BlackNineholesAI(currunt: GameState, isPlus: boolean = false) {
         continue
       }
       for (let f_random = 0; f_random < blacks[index].feasibility.length; f_random++) {
-        if (get_free_character(f_random, blacks[index].feasibility[f_random]) === 1) {
-          console.log("这一步下去我会走投无路" + blacks[index].self + "," + blacks[index].feasibility[f_random])
-          continue
-        }
-        if (next_step_lose_if_left(index, blacks[index].feasibility[f_random])) {
-          console.log("这一步下去黑子再走一步我会走投无路" + blacks[index].self + "," + blacks[index].feasibility[f_random])
-          continue
-        }
-        
+        // if (get_free_character(f_random, blacks[index].feasibility[f_random]) === 1) {
+        //   console.log("这一步下去我会走投无路" + blacks[index].self + "," + blacks[index].feasibility[f_random])
+        //   continue
+        // }
+        // if (next_step_lose_if_left(index, blacks[index].feasibility[f_random])) {
+        //   console.log("这一步下去黑子再走一步我会走投无路" + blacks[index].self + "," + blacks[index].feasibility[f_random])
+        //   continue
+        // }
+
         possible_list.push({ last: blacks[index].self, current: blacks[index].feasibility[f_random] })
       }
     }
@@ -383,7 +387,7 @@ export function BlackNineholesAI(currunt: GameState, isPlus: boolean = false) {
     }
   }
   if (possible_list.length) {
-    
+
     let random: number = parseInt((Math.random() * possible_list.length).toString())
     console.log(random)
     return possible_list[random]

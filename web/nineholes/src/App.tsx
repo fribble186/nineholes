@@ -70,7 +70,7 @@ function MainStage(props: { room_id: string }) {  // 主舞台，页面
       }
       change_game_status(_game_status)
     } else if (props.room_id.indexOf("ai") !== -1 && props.room_id !== "train") {
-      ws = new WebSocket(ws_url + props.room_id);
+      ws = new WebSocket(dev_ws_url + props.room_id);
       ws.onopen = function () {
         console.log("connection start")
       }
@@ -84,7 +84,28 @@ function MainStage(props: { room_id: string }) {  // 主舞台，页面
           change_my_role(null)
         } else {
           let data = JSON.parse(event.data)
-          change_game_status(data.data)
+          if (JSON.parse(event.data) === "continue") {
+            _game_status = JSON.parse(JSON.stringify(default_character_state))
+            change_my_role(Player.black)
+            _game_status.status = GameStatus.start
+            change_game_status(_game_status)
+          } else {
+            change_game_status(data.data)
+            if (data.data.winner !== null) {
+              setTimeout(() => {
+                _game_status = JSON.parse(JSON.stringify(default_character_state))
+                change_my_role(Player.black)
+                _game_status.status = GameStatus.start
+                ws.send(JSON.stringify({ room: props.room_id, data: _game_status }))
+                change_game_status(_game_status)
+              }, 300)
+            } else {
+              setTimeout(() => {
+                change_game_status(data.data)
+              }, 300)
+            }
+          }
+          
         }
       }
       set_websocket(ws)
@@ -147,7 +168,7 @@ function MainStage(props: { room_id: string }) {  // 主舞台，页面
                 }
                 ws.send(JSON.stringify({ room: props.room_id, data: _game_status }))
                 change_game_status(_game_status)
-              }, 1000)
+              }, 300)
             } else {
               setTimeout(() => {
                 let _game_status = JSON.parse(JSON.stringify(data.data))
