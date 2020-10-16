@@ -2,6 +2,7 @@ import React from 'react';
 import './App.css';
 import { useState, useEffect } from 'react'
 import { NineholesAI } from './ai'
+import { BlackNineholesAI } from './ai_black'
 import config from './config';
 
 interface CharacterProps {  // 棋子的props类型
@@ -55,8 +56,21 @@ function MainStage(props: { room_id: string }) {  // 主舞台，页面
       change_my_role(Player.black)
       _game_status.status = GameStatus.start
       change_game_status(_game_status)
-    } else if (props.room_id.indexOf("ai") !== -1) {
-      ws = new WebSocket(ws_url + props.room_id);
+    } else if (props.room_id === "jsai_black") {
+      change_my_role(Player.white)
+      _game_status.status = GameStatus.start
+      let result: { last: number[], current: number[] } | null = BlackNineholesAI(_game_status)
+      console.log(result)
+      if (result) {
+        let temp = _game_status.character_list[result.current[0]][result.current[1]]
+        _game_status.character_list[result.current[0]][result.current[1]] = _game_status.character_list[result.last[0]][result.last[1]]
+        _game_status.character_list[result.last[0]][result.last[1]] = temp
+        _game_status.player = _game_status.player === Player.black ? Player.white : Player.black
+        _game_status.winner = whoWin(_game_status)
+      }
+      change_game_status(_game_status)
+    } else if (props.room_id.indexOf("ai") !== -1 && props.room_id !== "train") {
+      ws = new WebSocket(dev_ws_url + props.room_id);
       ws.onopen = function () {
         console.log("connection start")
       }
@@ -84,13 +98,76 @@ function MainStage(props: { room_id: string }) {  // 主舞台，页面
         if (Number(event.data) === 0) {
           change_my_role(Player.black)
           _game_status.status = GameStatus.start
+          let result: { last: number[], current: number[] } | null = BlackNineholesAI(_game_status)
+          console.log(result)
+          if (result) {
+            let temp = _game_status.character_list[result.current[0]][result.current[1]]
+            _game_status.character_list[result.current[0]][result.current[1]] = _game_status.character_list[result.last[0]][result.last[1]]
+            _game_status.character_list[result.last[0]][result.last[1]] = temp
+            _game_status.player = _game_status.player === Player.black ? Player.white : Player.black
+            _game_status.winner = whoWin(_game_status)
+          }
           ws.send(JSON.stringify({ room: props.room_id, data: _game_status }))
           change_game_status(_game_status)
         } else if (Number(event.data)) {
           change_my_role(null)
         } else {
           let data = JSON.parse(event.data)
-          change_game_status(data.data)
+          if (JSON.parse(event.data) === "continue") {
+            _game_status = JSON.parse(JSON.stringify(default_character_state))
+            change_my_role(Player.black)
+            _game_status.status = GameStatus.start
+            let result: { last: number[], current: number[] } | null = BlackNineholesAI(_game_status)
+            console.log(result)
+            if (result) {
+              let temp = _game_status.character_list[result.current[0]][result.current[1]]
+              _game_status.character_list[result.current[0]][result.current[1]] = _game_status.character_list[result.last[0]][result.last[1]]
+              _game_status.character_list[result.last[0]][result.last[1]] = temp
+              _game_status.player = _game_status.player === Player.black ? Player.white : Player.black
+              _game_status.winner = whoWin(_game_status)
+            }
+            ws.send(JSON.stringify({ room: props.room_id, data: _game_status }))
+            change_game_status(_game_status)
+          } else {
+            change_game_status(data.data)
+            console.log("update from ws data", data.data)
+            if (data.data.winner !== null) {
+              setTimeout(() => {
+                _game_status = JSON.parse(JSON.stringify(default_character_state))
+                change_my_role(Player.black)
+                _game_status.status = GameStatus.start
+                let result: { last: number[], current: number[] } | null = BlackNineholesAI(_game_status)
+                console.log(result)
+                if (result) {
+                  let temp = _game_status.character_list[result.current[0]][result.current[1]]
+                  _game_status.character_list[result.current[0]][result.current[1]] = _game_status.character_list[result.last[0]][result.last[1]]
+                  _game_status.character_list[result.last[0]][result.last[1]] = temp
+                  _game_status.player = _game_status.player === Player.black ? Player.white : Player.black
+                  _game_status.winner = whoWin(_game_status)
+                }
+                ws.send(JSON.stringify({ room: props.room_id, data: _game_status }))
+                change_game_status(_game_status)
+              }, 1000)
+            } else {
+              setTimeout(() => {
+                let _game_status = JSON.parse(JSON.stringify(data.data))
+                let result: { last: number[], current: number[] } | null = BlackNineholesAI(_game_status)
+                console.log(result)
+                if (result) {
+                  let temp = _game_status.character_list[result.current[0]][result.current[1]]
+                  _game_status.character_list[result.current[0]][result.current[1]] = _game_status.character_list[result.last[0]][result.last[1]]
+                  _game_status.character_list[result.last[0]][result.last[1]] = temp
+                  _game_status.player = _game_status.player === Player.black ? Player.white : Player.black
+                  _game_status.winner = whoWin(_game_status)
+                } else {
+                  _game_status.winner = whoWin(_game_status)
+                }
+                change_game_status(_game_status)
+                ws.send(JSON.stringify({ room: props.room_id, data: _game_status }))
+              }, 300)
+            }
+
+          }
         }
       }
       set_websocket(ws)
@@ -190,7 +267,7 @@ function MainStage(props: { room_id: string }) {  // 主舞台，页面
       }
     }
     _game_status.winner = whoWin(_game_status)
-    if (is_change && props.room_id.indexOf("ai+")===-1 && my_websocket) {  // 有房间号开启websocket
+    if (is_change && props.room_id.indexOf("ai+") === -1 && my_websocket) {  // 有房间号开启websocket
       my_websocket.send(JSON.stringify({ room: props.room_id, data: _game_status }))
       console.log("send success")
     } else if (is_change && my_websocket) {
@@ -205,6 +282,15 @@ function MainStage(props: { room_id: string }) {  // 主舞台，页面
       } else {
         my_websocket.send(JSON.stringify({ room: props.room_id, data: _game_status }))
         console.log("send success")
+      }
+    } else if (is_change && props.room_id === "jsai_black" && !_game_status.winner) {
+      let result: { last: number[], current: number[] } | null = BlackNineholesAI(_game_status)
+      if (result) {
+        let temp = _game_status.character_list[result.current[0]][result.current[1]]
+        _game_status.character_list[result.current[0]][result.current[1]] = _game_status.character_list[result.last[0]][result.last[1]]
+        _game_status.character_list[result.last[0]][result.last[1]] = temp
+        _game_status.player = _game_status.player === Player.black ? Player.white : Player.black
+        _game_status.winner = whoWin(_game_status)
       }
     } else if (is_change && props.room_id === "jsai" && !_game_status.winner) {  // 与ai对战
       let result: { last: number[], current: number[] } | null = NineholesAI(_game_status)
