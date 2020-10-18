@@ -82,6 +82,7 @@ class AlphaSJ(object):
             self.black_route: List[List[int]] = []
             self.last_white_action_index: int = -1
         else:
+            self.train = True
             self.environment: List[Dict[str, List[int]]] = AiUtils.init_environment()
             self.white_r_matrix = np.load("r_matrix.npy")
             self.white_q_matrix = np.load("q_matrix.npy")
@@ -306,9 +307,19 @@ class AlphaSJ(object):
                 # for index in range(len(q_list)):
                 #     if q_list[index] == max_q:
                 #         print(max_q, self.environment[index])
-                for available in available_list:
-                    if available["q"] == max_q:
-                        next_states.append(available)
+                if self.is_train:
+                    if random.uniform(0, 1) > self.greedy:
+                        print("探索")
+                        next_states = available_list
+                    else:
+                        print("利用")
+                        for available in available_list:
+                            if available["q"] == max_q:
+                                next_states.append(available)
+                else:
+                    for available in available_list:
+                        if available["q"] == max_q:
+                            next_states.append(available)
                 next_state_index = random.randint(0, len(next_states) - 1)
                 next_state = self.environment[next_states[next_state_index]["target_action_index"]]
 
