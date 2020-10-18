@@ -82,7 +82,7 @@ class AlphaSJ(object):
             self.black_route: List[List[int]] = []
             self.last_white_action_index: int = -1
         else:
-            self.train = True
+            self.is_train = True
             self.environment: List[Dict[str, List[int]]] = AiUtils.init_environment()
             self.white_r_matrix = np.load("r_matrix.npy")
             self.white_q_matrix = np.load("q_matrix.npy")
