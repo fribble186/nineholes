@@ -67,7 +67,7 @@ class AlphaSJ(object):
         self.agent_white = None
         self.alpha: float = 0.2
         self.discount: float = 0.9
-        self.greedy: float = 0.9
+        self.greedy: float = 0.5
         if mode == "train":
             self.environment: List[Dict[str, List[int]]] = AiUtils.init_environment()
             self.white_r_matrix = AiUtils.init_white_return_matrix(self.environment)
@@ -175,9 +175,11 @@ class AlphaSJ(object):
                 # for index in range(len(q_list)):
                 #     if q_list[index] == max_q:
                 #         print(max_q, self.environment[index])
-                if random.uniform(0, 1) > 0.9:
+                if random.uniform(0, 1) > self.greedy:
+                    print("探索")
                     next_states = available_list
                 else:
+                    print("利用")
                     for available in available_list:
                         if available["q"] == max_q:
                             next_states.append(available)
