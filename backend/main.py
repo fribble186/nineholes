@@ -403,6 +403,7 @@ async def websocket_endpoint(ws: WebSocket, room: str):
                                 agent.train(new_return)
                                 print("return", new_return)
                                 print("game count", agent.game_count)
+                                await asyncio.sleep(0.1)
                                 await manager.send_other_message("continue", room)
                                 AiUtils.save_obj(agent.white_q_matrix, agent.white_r_matrix, agent.black_p_matrix, agent.game_count)
                                 print("saved Q")
