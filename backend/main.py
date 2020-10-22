@@ -72,6 +72,7 @@ class AlphaSJ(object):
             self.environment: List[Dict[str, List[int]]] = AiUtils.init_environment()
             self.white_r_matrix = AiUtils.init_white_return_matrix(self.environment)
             self.white_q_matrix = AiUtils.init_white_q_matrix(self.environment)
+            self.white_rule_matrix = AiUtils.init_white_rule_matrix(self.environment)
             self.black_p_matrix = AiUtils.init_black_p_matrix(self.environment)
             self.black_r_matrix = AiUtils.init_black_return_matrix(self.environment)
 
@@ -86,6 +87,7 @@ class AlphaSJ(object):
             self.environment: List[Dict[str, List[int]]] = AiUtils.init_environment()
             self.white_r_matrix = np.load("r_matrix.npy")
             self.white_q_matrix = np.load("q_matrix.npy")
+            self.white_rule_matrix = AiUtils.init_white_rule_matrix(self.environment)
             self.black_p_matrix = np.load("p_matrix.npy")
             self.black_r_matrix = AiUtils.init_black_return_matrix(self.environment)
 
@@ -100,9 +102,9 @@ class AlphaSJ(object):
         self.game_count += 1
         for route_item in self.white_route:
             print("old r: {}".format(self.white_r_matrix[route_item[0]][route_item[1]]))
-            if self.white_r_matrix[route_item[0]][route_item[1]] != 1:
+            if self.white_rule_matrix[route_item[0]][route_item[1]] != 1:
                 self.white_r_matrix[route_item[0]][route_item[1]] = ((self.game_count - 1) * self.white_r_matrix[route_item[0]][route_item[1]] + new_return) / self.game_count
-            print("new r: {}".format(self.white_q_matrix[route_item[0]][route_item[1]]))
+            print("new r: {}".format(self.white_r_matrix[route_item[0]][route_item[1]]))
         # 马尔科夫链根据bellman公式更新表格
         for route_item in self.white_route:
             print("old q: {}".format(self.white_q_matrix[route_item[0]][route_item[1]]))
