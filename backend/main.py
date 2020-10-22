@@ -67,7 +67,7 @@ class AlphaSJ(object):
         self.agent_white = None
         self.alpha: float = 0.2
         self.discount: float = 0.9
-        self.greedy: float = 0.8
+        self.greedy: float = 0.5
         if mode == "train":
             self.environment: List[Dict[str, List[int]]] = AiUtils.init_environment()
             self.white_r_matrix = AiUtils.init_white_return_matrix(self.environment)
