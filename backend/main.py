@@ -96,11 +96,13 @@ class AlphaSJ(object):
             self.last_white_action_index: int = -1
 
     def train(self, new_return):
-        print("train\n{}\n{}".format(self.white_route, self.black_route))
+        print("train {}\n{}\n{}".format(new_return, self.white_route, self.black_route))
         self.game_count += 1
         for route_item in self.white_route:
+            print("old r: {}".format(self.white_q_matrix[route_item[0]][route_item[1]]))
             if self.white_r_matrix[route_item[0]][route_item[1]] != 1:
                 self.white_r_matrix[route_item[0]][route_item[1]] = ((self.game_count - 1) * self.white_r_matrix[route_item[0]][route_item[1]] + new_return) / self.game_count
+            print("old r: {}".format(self.white_q_matrix[route_item[0]][route_item[1]]))
         # 马尔科夫链根据bellman公式更新表格
         for route_item in self.white_route:
             print("old q: {}".format(self.white_q_matrix[route_item[0]][route_item[1]]))
