@@ -279,7 +279,7 @@ class AlphaSJ(object):
                     "black_state_index": index,
                     "black_r_list": self.black_r_matrix[index],
                     "black_available_list": None,
-                    "q": None
+                    "q": self.white_r_matrix[state_index][index]
                 })
         if win_index == -1:
             print("no win index")
@@ -287,7 +287,6 @@ class AlphaSJ(object):
                 available["black_available_list"] = [index for index, item in enumerate(available["black_r_list"]) if
                                                      available["black_r_list"][index] != -1]
             for available in available_list:
-                available["q"] = 0
                 count = 0
                 for black_available in available["black_available_list"]:
                     count += self.black_p_matrix[available["black_state_index"], black_available]
@@ -298,9 +297,9 @@ class AlphaSJ(object):
                                             white_r_next_list[index] != -1]
                     q_available_list = [white_q_next_list[index] for index in next_white_available]
                     if len(q_available_list) == 0:
-                        available["q"] += -self.black_p_matrix[available["black_state_index"], black_available] / count
+                        available["q"] += - self.discount * self.black_p_matrix[available["black_state_index"], black_available] / count
                     else:
-                        available["q"] += (self.black_p_matrix[
+                        available["q"] += self.discount * (self.black_p_matrix[
                                                available["black_state_index"], black_available] / count) * max(
                             q_available_list)
             for available in available_list:
